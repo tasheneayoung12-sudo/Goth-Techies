@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Grotesk:wght@300;400;500;600;700&family=VT323&family=Fira+Code:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --font-terminal: "Share Tech Mono", monospace;
+  --font-retro: "VT323", monospace;
+
+  /* Cyberpunk Goth + Bumblebee color palette */
+  --color-cyber-black: #030306;
+  --color-cyber-dark: #080811;
+  --color-cyber-navy: #0e0e22;
+  --color-cyber-goth: #15091d;
+  --color-neon-cyan: #00f0ff;
+  --color-neon-magenta: #ff007f;
+  --color-neon-purple: #9d4edd;
+  --color-neon-yellow: #fefe00; /* Bumblebee gaming golden neon */
+  --color-neon-green: #39ff14;
+  --color-matrix-bg: rgba(5, 5, 8, 0.95);
+
+  --animate-glitch: glitch 1s ease-in-out infinite;
+  --animate-scanline: scanline 8s linear infinite;
+  --animate-pulse-glow: pulse-glow 2s infinite alternate;
+  --animate-matrix: matrix 20s linear infinite;
+  --animate-flicker: flicker 0.15s infinite;
+}
+
+@layer utilities {
+  .neon-glow-cyan {
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.5), 0 0 15px rgba(0, 240, 255, 0.3);
+  }
+  .neon-glow-magenta {
+    text-shadow: 0 0 5px rgba(255, 0, 127, 0.5), 0 0 15px rgba(255, 0, 127, 0.3);
+  }
+  .neon-glow-purple {
+    text-shadow: 0 0 5px rgba(157, 78, 221, 0.5), 0 0 15px rgba(157, 78, 221, 0.3);
+  }
+  .neon-glow-yellow {
+    text-shadow: 0 0 5px rgba(254, 254, 0, 0.5), 0 0 15px rgba(254, 254, 0, 0.3);
+  }
+  .neon-glow-green {
+    text-shadow: 0 0 5px rgba(57, 255, 20, 0.5), 0 0 15px rgba(57, 255, 20, 0.3);
+  }
+
+  /* Border Glowing */
+  .border-glow-cyan {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.2);
+  }
+  .border-glow-magenta {
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3), inset 0 0 8px rgba(255, 0, 127, 0.2);
+  }
+  .border-glow-yellow {
+    box-shadow: 0 0 8px rgba(254, 254, 0, 0.3), inset 0 0 8px rgba(254, 254, 0, 0.2);
+  }
+  .border-glow-purple {
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.3), inset 0 0 8px rgba(157, 78, 221, 0.2);
+  }
+
+  /* Scanlines Overlay */
+  .scanlines {
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  /* CRT Screen Bezel Curved Effect Overlay */
+  .crt::after {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: radial-gradient(circle, rgba(18, 16, 16, 0) 60%, rgba(0, 0, 0, 0.4) 100%);
+    opacity: 0.8;
+    z-index: 10000;
+    pointer-events: none;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 rgba(255,0,127,0.75), -0.05em -0.025em 0 rgba(0,240,255,0.75),
+      0 -0.05em 0 rgba(254,254,0,0.75);
+  }
+  14% {
+    text-shadow: 0.05em 0 0 rgba(255,0,127,0.75), -0.05em -0.025em 0 rgba(0,240,255,0.75),
+      0 -0.05em 0 rgba(254,254,0,0.75);
+  }
+  15% {
+    text-shadow: -0.05em -0.025em 0 rgba(255,0,127,0.75), 0.025em 0.025em 0 rgba(0,240,255,0.75),
+      -0.05em -0.05em 0 rgba(254,254,0,0.75);
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 rgba(255,0,127,0.75), 0.025em 0.025em 0 rgba(0,240,255,0.75),
+      -0.05em -0.05em 0 rgba(254,254,0,0.75);
+  }
+  50% {
+    text-shadow: 0.025em 0.05em 0 rgba(255,0,127,0.75), 0.05em 0 0 rgba(0,240,255,0.75),
+      0 -0.05em 0 rgba(254,254,0,0.75);
+  }
+  99% {
+    text-shadow: 0.025em 0.05em 0 rgba(255,0,127,0.75), 0.05em 0 0 rgba(0,240,255,0.75),
+      0 -0.05em 0 rgba(254,254,0,0.75);
+  }
+  100% {
+    text-shadow: -0.025em 0 0 rgba(255,0,127,0.75), -0.025em -0.025em 0 rgba(0,240,255,0.75),
+      -0.025em -0.05em 0 rgba(254,254,0,0.75);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vw);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.2);
+  }
+  100% {
+    opacity: 0.9;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+  }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  50% { opacity: 0.95; }
+  100% { opacity: 0.99; }
+}
+
+/* Custom scrollbars for the OS interface */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cyber-black);
+  border-left: 1px solid rgba(0, 240, 255, 0.15);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(157, 78, 221, 0.4);
+  border: 2px solid var(--color-cyber-black);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon-cyan);
+}
+
+/* Base resets & terminal vibes */
+body {
+  background-color: #030306;
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+
