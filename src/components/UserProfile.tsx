@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { User, BookOpen, Heart, Radio, Shield, Award, Sparkles } from "lucide-react";
 import { playCyberSound } from "../utils/audio";
 import { CREATOR_PROFILE } from "../data/cyberData";
+import avatarImage from "../assets/images/cybergoth_pixel_avatar_1782081365501.jpg";
 
 export default function UserProfile() {
   const profile = CREATOR_PROFILE;
@@ -30,7 +31,7 @@ export default function UserProfile() {
             <div className="relative w-40 h-40 mb-6 flex items-center justify-center border-2 border-neon-magenta rounded-full bg-cyber-black p-1 shadow-[0_0_15px_rgba(255,0,255,0.25)] overflow-hidden">
               {/* Pixel Art CyberGoth Avatar */}
               <img
-                src="/src/assets/images/cybergoth_pixel_avatar_1782081365501.jpg"
+                src={avatarImage}
                 alt="Cyber-Gothic Pixel Art Avatar of Tashenea"
                 className="w-full h-full object-cover rounded-full z-10"
                 referrerPolicy="no-referrer"
