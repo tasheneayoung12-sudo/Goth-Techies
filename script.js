@@ -925,3 +925,20 @@ function loadPersistentData() {
 document.addEventListener("DOMContentLoaded", () => {
   startBootSequence();
 });
+
+// Expose functions to global scope (window) for inline HTML event attributes compatibility
+window.toggleAudioMute = toggleAudioMute;
+window.playCyberSound = playCyberSound;
+window.toggleCRT = toggleCRT;
+window.handleAccess = handleAccess;
+window.selectHobby = selectHobby;
+window.deleteDream = deleteDream;
+window.injectDream = injectDream;
+window.toggleSkillDetail = toggleSkillDetail;
+window.filterArchive = filterArchive;
+window.selectLogDiagnostics = selectLogDiagnostics;
+window.setContactMode = setContactMode;
+window.selectCoffeeAmount = selectCoffeeAmount;
+window.handleCustomCoffee = handleCustomCoffee;
+window.handleTransmit = handleTransmit;
+
