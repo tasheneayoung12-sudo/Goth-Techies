@@ -1,13 +1,1021 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Tashibee // Cyber-Hive</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'cyber-black': '#030306',
+              'cyber-dark': '#080811',
+              'cyber-navy': '#0e0e22',
+              'cyber-goth': '#15091d',
+              'neon-cyan': '#00f0ff',
+              'neon-magenta': '#ff007f',
+              'neon-purple': '#9d4edd',
+              'neon-yellow': '#fefe00',
+              'neon-green': '#39ff14',
+            },
+            fontFamily: {
+              sans: ['Space Grotesk', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+              terminal: ['Share Tech Mono', 'monospace'],
+              retro: ['VT323', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Custom Animations & Bezel effects -->
+    <link rel="stylesheet" href="./src/styles.css" />
+
+    <!-- Lucide Icon Loader -->
+    <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body id="main-body" class="min-h-screen bg-cyber-black text-slate-100 font-sans relative crt">
+    
+    <!-- 1. INITIAL BOOT SEQUENCE SCREEN OVERLAY -->
+    <div id="boot-screen" class="fixed inset-0 bg-cyber-black text-neon-cyan font-terminal flex flex-col justify-center items-center z-50 p-6 overflow-hidden select-none">
+      <div class="absolute inset-0 scanlines pointer-events-none opacity-40"></div>
+      <div class="absolute -top-40 -left-40 w-96 h-96 bg-neon-purple/5 rounded-full filter blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-neon-magenta/5 rounded-full filter blur-3xl pointer-events-none"></div>
+
+      <div class="w-full max-w-2xl border border-neon-cyan/30 rounded-lg p-6 bg-cyber-dark/95 border-glow-cyan flex flex-col relative">
+        <!-- Terminal Header -->
+        <div class="flex items-center justify-between border-b border-neon-cyan/20 pb-3 mb-4 text-xs font-mono tracking-widest text-neon-cyan/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-neon-magenta animate-pulse"></span>
+            <span>SYSTEM_BOOT://TASHIBEET_OS_V4.0</span>
+          </div>
+          <div>CORE: SECURE [0x7FFEF]</div>
+        </div>
+
+        <!-- Scrollable console logs -->
+        <div id="boot-console" class="bg-cyber-black/80 border border-neon-cyan/15 rounded p-4 h-64 overflow-y-auto mb-6 text-xs md:text-sm font-mono flex flex-col gap-2 scrollbar-none">
+          <!-- Logs injected by script.js -->
+        </div>
+
+        <!-- Progress bar container -->
+        <div class="mb-6">
+          <div class="flex justify-between text-xs font-mono mb-2">
+            <span class="tracking-wider">DECRYPT_DATASTREAM :</span>
+            <span id="boot-percent" class="text-neon-cyan font-bold">0%</span>
+          </div>
+          <div class="w-full h-3 border border-neon-cyan/20 bg-cyber-black rounded-sm overflow-hidden relative">
+            <div id="boot-bar-progress" class="h-full bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-cyan transition-all duration-150" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Trigger button (unlocked after boot) -->
+        <div class="flex justify-center">
+          <div id="boot-handshake-status" class="px-6 py-3 border border-neon-cyan/20 text-neon-cyan/40 bg-cyber-black rounded flex items-center gap-2 text-sm font-mono select-none">
+            <i data-lucide="radio" class="w-4 h-4 animate-pulse text-neon-magenta"></i>
+            Datalink Handshake in Progress...
+          </div>
+          <button
+            id="boot-access-btn"
+            onclick="handleAccess()"
+            class="hidden px-8 py-4 border border-neon-magenta/50 text-neon-magenta font-terminal tracking-widest uppercase rounded cursor-pointer transition-all flex items-center gap-3 bg-cyber-magenta/10 select-none shadow-[0_0_10px_rgba(255,0,127,0.15)] hover:scale-105 hover:text-white hover:border-neon-magenta hover:shadow-[0_0_15px_rgba(255,0,127,0.4)]"
+          >
+            <span>🖤 ACCESS TERMINAL</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION INTERFACE (WORKSPACE) -->
+    <div id="workspace-screen" class="hidden flex flex-col min-h-screen relative overflow-hidden">
+      <!-- Background static scanlines & glowing ambient filter grids -->
+      <div class="fixed inset-0 scanlines pointer-events-none opacity-20"></div>
+      <div class="absolute top-24 left-1/4 w-80 h-80 bg-neon-purple/5 rounded-full filter blur-[120px] pointer-events-none"></div>
+      <div class="absolute top-1/2 right-1/4 w-96 h-96 bg-neon-magenta/5 rounded-full filter blur-[150px] pointer-events-none"></div>
+      <div class="absolute bottom-24 left-1/3 w-72 h-72 bg-neon-cyan/5 rounded-full filter blur-[100px] pointer-events-none"></div>
+
+      <!-- TASKBAR / SYSTEM HEADER -->
+      <header class="sticky top-0 z-40 bg-cyber-black/90 backdrop-blur-md border-b border-neon-cyan/20 px-4 py-2 flex items-center justify-between font-terminal text-xs text-neon-cyan select-none">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 cursor-pointer" onclick="playCyberSound('click')">
+            <span class="w-2.5 h-2.5 bg-neon-yellow rounded-full shadow-[0_0_8px_#fefe00] animate-pulse"></span>
+            <span class="font-bold tracking-widest text-neon-yellow">BEE_NET://TASHIBEET</span>
+          </div>
+          <div class="hidden sm:flex items-center gap-1 px-2 py-0.5 bg-neon-purple/20 border border-neon-purple/40 rounded text-[10px] text-neon-purple font-mono uppercase tracking-wider">
+            <i data-lucide="disc" class="w-3 h-3 animate-spin text-neon-magenta"></i>
+            <span>master_node: running</span>
+          </div>
+        </div>
+
+        <!-- Taskbar center metrics -->
+        <div class="hidden lg:flex items-center gap-6 font-mono text-[10px] text-zinc-500">
+          <div class="flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-neon-green"></i>
+            <span>GOTH_TECH_SHIELD: <span class="text-neon-green font-bold">SECURE</span></span>
+          </div>
+          <div class="flex items-center gap-1">
+            <i data-lucide="cpu" class="w-3.5 h-3.5 text-neon-cyan"></i>
+            <span>CYBERNET_INTEGRATION: <span class="text-neon-cyan font-bold">ACTIVE</span></span>
+          </div>
+          <div class="flex items-center gap-1">
+            <i data-lucide="wifi" class="w-3.5 h-3.5 text-neon-magenta"></i>
+            <span>STREAM_GATE: <span class="text-neon-magenta">ONLINE</span></span>
+          </div>
+        </div>
+
+        <!-- Taskbar Controls -->
+        <div class="flex items-center gap-4">
+          <button
+            id="mute-toggle-btn"
+            onclick="toggleAudioMute()"
+            class="p-1 px-2 border border-neon-cyan/20 hover:border-neon-cyan bg-cyber-dark/80 rounded flex items-center justify-center gap-1 cursor-pointer hover:bg-neon-cyan/10 text-neon-cyan transition-all"
+            title="Mute audio synthesizer"
+          >
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-neon-green animate-pulse"></i>
+            <span class="text-[10px] font-mono text-neon-green hidden xs:inline">SYNTHON</span>
+          </button>
+
+          <div class="flex items-center gap-1.5 bg-cyber-dark px-2.5 py-1 border border-neon-cyan/15 rounded text-neon-cyan font-mono shadow-[0_0_5px_rgba(0,240,255,0.05)]">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-neon-cyan"></i>
+            <span id="system-clock" class="tabular-nums tracking-widest">SYSTEM_BOOT</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN WORKSPACE -->
+      <main class="flex-1 w-full mx-auto relative z-10">
+
+        <!-- HERO TERMINAL SECTION -->
+        <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 md:px-8 border-b border-neon-cyan/15 overflow-hidden">
+          <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,240,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,240,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(rgba(254,254,0,0.015)_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none"></div>
+
+          <div class="max-w-4xl relative z-10 flex flex-col items-center gap-6">
+            <div data-cyber-hover class="px-3.5 py-1.5 border border-neon-magenta/35 bg-neon-magenta/5 text-neon-magenta rounded font-terminal text-[11px] tracking-widest uppercase flex items-center gap-2 select-none">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-neon-yellow animate-bounce"></i>
+              <span>SYSTEM_ONLINE_NODE // TASHIBEET_NET</span>
+            </div>
+
+            <h1 class="text-5xl sm:text-7xl md:text-8xl font-terminal font-extrabold uppercase tracking-tighter text-white">
+              <span class="block leading-none">Hack The</span>
+              <span class="block text-transparent bg-clip-text bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-yellow leading-none animate-glitch py-1 font-retro neon-glow-magenta">System.</span>
+            </h1>
+
+            <p class="text-base sm:text-lg md:text-xl text-zinc-300 max-w-2xl leading-relaxed mt-2">
+              Computer Science, AI, gaming, freelancing, and global adventures for the next generation of Goth Techies.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 mt-6 items-center">
+              <a
+                href="#services"
+                class="px-10 py-5 bg-gradient-to-r from-neon-purple to-neon-magenta hover:brightness-110 text-white font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_15px_rgba(255,0,127,0.3)] transition-all font-bold text-sm sm:text-base flex items-center gap-3 select-none"
+                onclick="playCyberSound('click')"
+              >
+                <span>Access Terminal</span>
+              </a>
+
+              <button
+                onclick="toggleCRT()"
+                class="px-6 py-4.5 border border-neon-cyan/25 hover:border-neon-cyan bg-cyber-dark/60 text-neon-cyan hover:bg-neon-cyan/10 font-terminal tracking-widest uppercase rounded cursor-pointer transition-all text-xs flex items-center gap-2 select-none"
+              >
+                <i data-lucide="monitor" class="w-4 h-4 text-neon-cyan"></i>
+                <span>Toggle CRT Filter</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="absolute bottom-6 flex flex-col items-center gap-1.5 text-zinc-500 font-terminal text-[10px] tracking-wider uppercase select-none cursor-pointer">
+            <span>SCROLL_TO_GRID</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 animate-bounce text-neon-cyan"></i>
+          </div>
+        </section>
+
+        <!-- SUBJECT DOSSIER (ABOUT TASHENEA) -->
+        <section id="about" class="py-16 px-4 md:px-8 max-w-7xl mx-auto border-b border-neon-cyan/10">
+          <div class="flex items-center gap-2 mb-10 text-xs font-mono text-neon-magenta tracking-widest uppercase">
+            <span class="w-1.5 h-1.5 bg-neon-magenta rounded-full"></span>
+            <span>INDEX_LOG://USER_PROFILE://ABOUT_CORE</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Profile Card -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+              <div class="border border-neon-yellow/30 bg-cyber-goth/40 rounded-lg p-6 border-glow-yellow relative flex flex-col items-center">
+                <div class="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-neon-yellow/5 to-transparent pointer-events-none"></div>
+
+                <!-- Avatar Box -->
+                <div class="relative w-40 h-40 mb-6 flex items-center justify-center border-2 border-neon-magenta rounded-full bg-cyber-black p-1 shadow-[0_0_15px_rgba(255,0,255,0.25)] overflow-hidden">
+                  <img
+                    src="assets/images/cybergoth_pixel_avatar_1782081365501.jpg"
+                    alt="Cyber-Gothic Pixel Art Avatar of Tashenea"
+                    class="w-full h-full object-cover rounded-full z-10"
+                    referrerpolicy="no-referrer"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-20"></div>
+                  <div class="absolute bottom-2 left-0 right-0 text-center z-30">
+                    <span class="font-terminal text-[10px] tracking-widest text-neon-cyan font-bold bg-black/80 px-2 py-0.5 rounded border border-neon-cyan/30">TASHIE_XD</span>
+                  </div>
+                </div>
+
+                <!-- Bio dossier list -->
+                <div class="w-full font-terminal text-xs flex flex-col gap-2.5 border-t border-neon-yellow/15 pt-5 text-zinc-300">
+                  <div class="flex justify-between border-b border-white/5 pb-1.5">
+                    <span class="text-neon-cyan uppercase">Subject:</span>
+                    <span class="text-white font-mono">Tashenea</span>
+                  </div>
+                  <div class="flex justify-between border-b border-white/5 pb-1.5">
+                    <span class="text-neon-magenta uppercase">Hex ID:</span>
+                    <span class="text-white font-mono">Tashie_XD</span>
+                  </div>
+                  <div class="flex justify-between border-b border-white/5 pb-1.5">
+                    <span class="text-neon-purple uppercase">Faction:</span>
+                    <span class="text-neon-purple font-mono">Alternative Tech Vanguard</span>
+                  </div>
+                  <div class="flex justify-between border-b border-white/5 pb-1.5">
+                    <span class="text-neon-yellow uppercase">Twitch Handle:</span>
+                    <span class="text-neon-yellow font-mono font-bold">tashibee</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-neon-green uppercase">Security:</span>
+                    <span class="text-neon-green font-mono">LEVEL_CORE</span>
+                  </div>
+                </div>
+              </div>
+
+              <div data-cyber-hover class="border border-neon-cyan/20 bg-cyber-navy/40 p-5 rounded-lg flex flex-col gap-3 border-glow-cyan">
+                <div class="flex items-center gap-2 text-neon-cyan font-terminal text-xs font-bold uppercase">
+                  <i data-lucide="radio" class="w-4 h-4 text-neon-cyan animate-pulse"></i>
+                  <span>CURRENT LINK STATUS</span>
+                </div>
+                <div class="text-xs font-mono text-zinc-400 leading-relaxed">
+                  Serving continuous payloads on stream, training networks, compiling Christian value frameworks, and constructing digital escape corridors.
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed Dossier & Manifesto -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+              <div class="border border-neon-purple/20 bg-cyber-dark/80 rounded-lg p-6 md:p-8 relative">
+                <div class="absolute top-4 right-4 text-[10px] font-mono text-neon-purple/50">MEM_LOG_CORE</div>
+                
+                <h2 class="text-2xl md:text-3xl font-terminal font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-3">
+                  <i data-lucide="user" class="w-6 h-6 text-neon-purple"></i>
+                  Manifesto://<span class="text-neon-purple">Tashenea</span>
+                </h2>
+
+                <div class="prose prose-invert text-zinc-300 font-sans text-sm md:text-base leading-relaxed mb-6">
+                  <p class="border-l-2 border-neon-purple/50 pl-4 py-1.5 italic bg-neon-purple/5 rounded-r">
+                    &ldquo;I don't conform to traditional corporate tech grids. As a goth techie, I believe digital tools, coding, and AI are mediums of creative rebellion and spiritual authenticity.&rdquo;
+                  </p>
+                  <p class="mt-4 text-zinc-300 text-xs sm:text-sm leading-relaxed">
+                    Hey, I'm Tashenea! A Computer Science graduate and current Master's student specializing in AI and Machine Learning. I do not fit into traditional corporate boxes, and neither should you. I fuse gothic cyberpunk aesthetics with deep engineering, gaming culture, and value-driven Christian principles. Through my Twitch channel (tashibee) and my digital teachings, I equip bold, non-conforming girls and young women with the absolute elite programming, AI, and freelancing skillsets needed to build a custom kingdom of global freedom.
+                  </p>
+                </div>
+
+                <!-- Academic modules -->
+                <div class="border border-neon-cyan/15 bg-black/40 rounded-lg p-5 mt-6">
+                  <h3 class="text-xs font-terminal font-bold uppercase tracking-wider text-neon-cyan mb-3.5 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    COGNITIVE_ACCELERATOR://ACADEMIC_DOSSIER
+                  </h3>
+
+                  <div class="flex flex-col gap-3 font-terminal text-xs md:text-sm">
+                    <div class="flex gap-2.5 items-start">
+                      <i data-lucide="award" class="w-4 h-4 text-neon-green shrink-0 mt-0.5"></i>
+                      <div>
+                        <span class="text-white font-bold block">B.S. in Computer Science, Cal Poly Humboldt</span>
+                        <span class="text-zinc-500 text-xs">Architectural systems programming, standard algorithms, compilation theories</span>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-2.5 items-start border-t border-white/5 pt-3">
+                      <i data-lucide="sparkles" class="w-4 h-4 text-neon-magenta shrink-0 mt-0.5"></i>
+                      <div>
+                        <span class="text-neon-magenta font-bold block">M.S. in Computer Science, Western Governors University (AI & ML, Current)</span>
+                        <span class="text-zinc-500 text-xs">Focusing on Deep Learning architectures, Neural Network engineering, alignment of cognitive AI structures</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Christian values -->
+              <div class="border border-neon-magenta/20 bg-cyber-dark/80 rounded-lg p-6 md:p-8">
+                <h3 class="text-xs font-terminal font-bold uppercase tracking-widest text-neon-magenta mb-5 flex items-center gap-2">
+                  <i data-lucide="shield" class="w-4 h-4"></i>
+                  FAITH_DIRECTIVES://CHRISTIAN_VALUES
+                </h3>
+
+                <p class="text-zinc-300 font-sans text-sm mb-5 leading-relaxed">
+                  True strength comes from alignment with foundational truth. As a Christian, my mission is to direct technology toward purposeful construction rather than system dependency, showing alternate techies that code can carry value and light.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                  <div data-cyber-hover class="flex gap-3 items-center p-3 bg-cyber-goth/20 border border-neon-magenta/10 rounded-md hover:border-neon-magenta/25 transition-all group">
+                    <div class="w-2 h-2 rounded-full bg-neon-magenta shrink-0 group-hover:scale-125 transition-all"></div>
+                    <span class="font-terminal text-xs md:text-sm text-zinc-300 group-hover:text-white transition-colors">Faith and Future-Craft: Technology is a divine medium for creation.</span>
+                  </div>
+                  <div data-cyber-hover class="flex gap-3 items-center p-3 bg-cyber-goth/20 border border-neon-magenta/10 rounded-md hover:border-neon-magenta/25 transition-all group">
+                    <div class="w-2 h-2 rounded-full bg-neon-magenta shrink-0 group-hover:scale-125 transition-all"></div>
+                    <span class="font-terminal text-xs md:text-sm text-zinc-300 group-hover:text-white transition-colors">Aesthetic Freedom: Alternative style does not compromise intellectual elite status.</span>
+                  </div>
+                  <div data-cyber-hover class="flex gap-3 items-center p-3 bg-cyber-goth/20 border border-neon-magenta/10 rounded-md hover:border-neon-magenta/25 transition-all group">
+                    <div class="w-2 h-2 rounded-full bg-neon-magenta shrink-0 group-hover:scale-125 transition-all"></div>
+                    <span class="font-terminal text-xs md:text-sm text-zinc-300 group-hover:text-white transition-colors">Global Liberation: Freelancing and automation build the pathways of freedom.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUBCULTURE DOCK (INTERACTIVE HOBBIES & DREAMS) -->
+        <section id="hobbies-dreams" class="py-16 px-4 md:px-8 max-w-7xl mx-auto border-b border-neon-cyan/10">
+          <div class="flex items-center gap-2 mb-10 text-xs font-mono text-neon-yellow tracking-widest uppercase">
+            <span class="w-1.5 h-1.5 bg-neon-yellow rounded-full"></span>
+            <span>INDEX_LOG://SUB_CULTURE://INTERACTIVE_DREAM_DOCK</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Panel: Hobbies Selection -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+              <div class="flex flex-col gap-2">
+                <h2 class="text-2xl md:text-3xl font-terminal font-bold text-white uppercase tracking-wider">
+                  HOBBIES_LOG://METADATA
+                </h2>
+                <p class="text-xs font-sans text-zinc-400">
+                  Interactive aesthetic indicators. Select any node below to decode my focus interests in anime, horror speculation, and deep allegorical fantasy.
+                </p>
+              </div>
+
+              <!-- Selection List -->
+              <div class="flex flex-col gap-3">
+                <div
+                  onclick="selectHobby('anime')"
+                  data-hobby-card="anime"
+                  class="p-4 border border-neon-cyan bg-neon-cyan/5 border-glow-cyan rounded-lg cursor-pointer transition-all flex items-center justify-between select-none"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-black/40 border border-white/5 text-neon-cyan">
+                      <i data-lucide="tv" class="w-5 h-5 animate-pulse"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-terminal font-bold text-sm tracking-wide text-white uppercase">Anime & Mecha Lore</h4>
+                      <p class="text-[11px] font-mono text-zinc-500">TAG: SECURE_ANIME_NODE</p>
+                    </div>
+                  </div>
+                  <span class="text-neon-cyan font-mono text-xs font-bold">[ONLINE]</span>
+                </div>
+
+                <div
+                  onclick="selectHobby('horror')"
+                  data-hobby-card="horror"
+                  class="p-4 border border-white/5 bg-cyber-dark/40 rounded-lg cursor-pointer transition-all flex items-center justify-between select-none hover:border-white/10"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-black/40 border border-white/5 text-zinc-500">
+                      <i data-lucide="skull" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-terminal font-bold text-sm tracking-wide text-white uppercase">Survival Horror & Mystery</h4>
+                      <p class="text-[11px] font-mono text-zinc-500">TAG: HORROR_DECRYPTION</p>
+                    </div>
+                  </div>
+                  <span class="text-neon-magenta font-mono text-xs font-bold">[ON_LINE]</span>
+                </div>
+
+                <div
+                  onclick="selectHobby('fantasy')"
+                  data-hobby-card="fantasy"
+                  class="p-4 border border-white/5 bg-cyber-dark/40 rounded-lg cursor-pointer transition-all flex items-center justify-between select-none hover:border-white/10"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded bg-black/40 border border-white/5 text-zinc-500">
+                      <i data-lucide="crown" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-terminal font-bold text-sm tracking-wide text-white uppercase">Fantasy & Sacred Allegory</h4>
+                      <p class="text-[11px] font-mono text-zinc-500">TAG: FANTASY_METRICS</p>
+                    </div>
+                  </div>
+                  <span class="text-neon-purple font-mono text-xs font-bold">[ON_LINE]</span>
+                </div>
+              </div>
+
+              <!-- Dynamic Hobby Console Box -->
+              <div id="hobby-log-display" class="border border-white/5 bg-cyber-black/80 rounded-lg p-5 font-mono text-xs flex flex-col gap-3 relative">
+                <div class="flex justify-between items-center text-[10px] text-zinc-500 border-b border-white/5 pb-2">
+                  <span>DECRYPTED FOCUS: ANIME_NODE</span>
+                  <span class="animate-pulse text-neon-green">ACTIVE_READ</span>
+                </div>
+                <h5 class="font-terminal font-bold text-sm text-neon-yellow uppercase">
+                  Cyber-Anime Subculture Integration
+                </h5>
+                <p class="font-sans text-zinc-300 leading-relaxed text-xs">
+                  Deep obsession with psychological thrillers, futuristic mecha settings, neoclassic cyber-rebellion and dark fantasy storyboards.
+                </p>
+                <div class="flex flex-col gap-1.5 mt-2.5">
+                  <span class="text-zinc-500 uppercase text-[10px]">AESTHETIC REFERENCE SAMPLES:</span>
+                  <div class="flex flex-wrap gap-1.5 mt-1">
+                    <span class="bg-white/5 px-2 py-1 text-zinc-300 border border-white/10 rounded font-sans text-[11px]">🍿 Serial Experiments Lain</span>
+                    <span class="bg-white/5 px-2 py-1 text-zinc-300 border border-white/10 rounded font-sans text-[11px]">🍿 Ghost in the Shell</span>
+                    <span class="bg-white/5 px-2 py-1 text-zinc-300 border border-white/10 rounded font-sans text-[11px]">🍿 Psycho-Pass</span>
+                    <span class="bg-white/5 px-2 py-1 text-zinc-300 border border-white/10 rounded font-sans text-[11px]">🍿 Cyberpunk: Edgerunners</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Dream Protocol Form -->
+            <div class="lg:col-span-7 border border-neon-cyan/20 bg-cyber-dark/80 rounded-lg p-6 md:p-8 flex flex-col gap-6 relative">
+              <div class="absolute top-4 right-4 text-[9px] font-mono text-neon-cyan/40">SYS_DREAM_DOCK</div>
+
+              <div class="flex flex-col gap-2">
+                <h3 class="text-2xl font-terminal font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <i data-lucide="network" class="w-6 h-6 text-neon-cyan"></i>
+                  VISION://DREAM_INJECTOR
+                </h3>
+                <p class="text-xs font-sans text-zinc-300">
+                  Set up your custom dream checkpoints! Empower yourself by documenting freelancing directives, nomadic travel corridors, and financial sovereignty checkpoints with standard local persistence logs.
+                </p>
+              </div>
+
+              <form onsubmit="injectDream(event)" class="border border-white/5 bg-cyber-black/80 rounded-lg p-4 font-mono text-xs flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-neon-cyan uppercase font-bold tracking-wider">Dream Checkpoint Detail:</label>
+                  <input
+                    id="dream-title-input"
+                    type="text"
+                    placeholder="e.g., Relocate coding setup to a digital caravan in the Alps"
+                    class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-cyan text-xs font-mono text-zinc-200"
+                    required
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-magenta uppercase font-bold tracking-wider">Protocol Category:</label>
+                    <select
+                      id="dream-cat-select"
+                      class="w-full bg-cyber-dark border border-white/10 rounded p-2 outline-none focus:border-neon-magenta text-zinc-300 text-xs font-mono"
+                    >
+                      <option value="FREELANCING">💼 FREELANCING PLATFORM</option>
+                      <option value="TRAVEL">✈ GLOBAL TRAVEL</option>
+                      <option value="FINANCIAL_INDEP">💰 FINANCIAL INDEPENDENCE</option>
+                    </select>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-yellow uppercase font-bold tracking-wider">Target Realization Year:</label>
+                    <input
+                      id="dream-year-input"
+                      type="number"
+                      min="2026"
+                      max="2040"
+                      value="2026"
+                      class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-yellow text-xs font-mono text-zinc-300"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  class="mt-2 py-3 bg-neon-cyan hover:bg-neon-cyan/25 hover:text-neon-cyan border border-neon-cyan text-cyber-black font-terminal font-bold uppercase tracking-widest rounded cursor-pointer transition-all flex items-center justify-center gap-2"
+                >
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  INJECT DREAM PROTOCOL
+                </button>
+              </form>
+
+              <!-- Injected dreams list -->
+              <div class="flex flex-col gap-3 mt-2">
+                <h4 class="text-xs font-mono font-bold text-zinc-400 uppercase tracking-widest">
+                  ACTIVE_DREAM_RECORDS:
+                </h4>
+                <div id="dreams-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Injected dynamically by script.js -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SKILL MATRIX SECTION -->
+        <section id="services" class="py-16 px-4 md:px-8 max-w-7xl mx-auto border-b border-neon-cyan/10">
+          <div class="flex items-center gap-2 mb-10 text-xs font-mono text-neon-cyan tracking-widest uppercase">
+            <span class="w-1.5 h-1.5 bg-neon-cyan rounded-full"></span>
+            <span>INDEX_LOG://SKILL_MATRIX://SERVICES_NODE</span>
+          </div>
+
+          <div class="max-w-3xl mb-12">
+            <h2 class="text-3xl md:text-4xl font-terminal font-bold text-white mb-4 uppercase tracking-wide">
+              ACTUATING SYSTEM PROTOCOLS
+            </h2>
+            <p class="text-zinc-400 font-sans text-sm md:text-base leading-relaxed">
+              Select and initialize an executable sub-system below to explore training tracks, freelancing remote frameworks, and gaming channels designed for the cyber-alternative underground.
+            </p>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Card 1: CS Academy -->
+            <div
+              onclick="toggleSkillDetail('cs_learning')"
+              class="border border-neon-cyan/20 hover:border-neon-cyan/80 bg-cyber-dark/60 rounded-lg p-6 cursor-pointer flex flex-col justify-between transition-all duration-300 relative select-none group"
+            >
+              <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center text-[10px] font-mono tracking-wider text-zinc-500">
+                  <span class="font-semibold">CS_LEARNING_MODULE.exe</span>
+                  <span class="px-1.5 py-0.5 border rounded bg-black/40 border-white/5 uppercase">SYS_LOAD: 42%</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-terminal font-bold uppercase text-neon-cyan tracking-wider mb-2.5 flex items-center gap-2">
+                    <i data-lucide="cpu" class="w-5 h-5"></i>
+                    Computer Science & AI Academy
+                  </h3>
+                  <p class="text-xs md:text-sm text-zinc-300 font-sans leading-relaxed">
+                    De-mystify complex computer science, neural networks, and algorithms through intuitive visual modules for absolute beginners.
+                  </p>
+                </div>
+                <div class="w-full bg-cyber-black h-1.5 rounded-sm overflow-hidden mb-2">
+                  <div class="h-full bg-neon-cyan" style="width: 42%"></div>
+                </div>
+
+                <!-- Expanded elements -->
+                <div id="skill-details-cs_learning" class="hidden overflow-hidden border-t border-white/5 pt-4 flex flex-col gap-3 font-terminal text-xs">
+                  <span class="text-neon-cyan text-[10px] tracking-widest font-mono uppercase block mb-1">⚙️ RUNNING PROTOCOL_METRICS:</span>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-cyan"></i>
+                    <span>Zero-to-One Programming (Python & JS)</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-cyan"></i>
+                    <span>How Neural Networks think (LLMs, transformers)</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-cyan"></i>
+                    <span>Git & Open Source collaboration</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-cyan"></i>
+                    <span>Building your first web app with modern stack</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t border-white/5 pt-4 mt-6 flex justify-between items-center text-[10px] font-mono">
+                <span class="text-zinc-500">INITIATION: ONLINE</span>
+                <span id="skill-trigger-cs_learning" class="text-neon-cyan group-hover:underline uppercase tracking-wide font-semibold flex items-center gap-1">EXPAND_NODE [🗁]</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Freelance -->
+            <div
+              onclick="toggleSkillDetail('freelance_unlock')"
+              class="border border-neon-magenta/20 hover:border-neon-magenta/80 bg-cyber-dark/60 rounded-lg p-6 cursor-pointer flex flex-col justify-between transition-all duration-300 relative select-none group"
+            >
+              <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center text-[10px] font-mono tracking-wider text-zinc-500">
+                  <span class="font-semibold">FREELANCE_UNLOCK_PROTOCOL.dll</span>
+                  <span class="px-1.5 py-0.5 border rounded bg-black/40 border-white/5 uppercase">SYS_LOAD: 68%</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-terminal font-bold uppercase text-neon-magenta tracking-wider mb-2.5 flex items-center gap-2">
+                    <i data-lucide="terminal" class="w-5 h-5"></i>
+                    Alternative Freelance Protocol
+                  </h3>
+                  <p class="text-xs md:text-sm text-zinc-300 font-sans leading-relaxed">
+                    Gain financial sovereignty, master remote work pipelines, and unlock digital income strategies to escape traditional corporate lifestyles.
+                  </p>
+                </div>
+                <div class="w-full bg-cyber-black h-1.5 rounded-sm overflow-hidden mb-2">
+                  <div class="h-full bg-neon-magenta" style="width: 68%"></div>
+                </div>
+
+                <!-- Expanded elements -->
+                <div id="skill-details-freelance_unlock" class="hidden overflow-hidden border-t border-white/5 pt-4 flex flex-col gap-3 font-terminal text-xs">
+                  <span class="text-neon-magenta text-[10px] tracking-widest font-mono uppercase block mb-1">⚙️ RUNNING PROTOCOL_METRICS:</span>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-magenta"></i>
+                    <span>Alternative career path strategies</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-magenta"></i>
+                    <span>Drafting premium proposals & building client funnels</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-magenta"></i>
+                    <span>Leveraging AI to optimize your development flow</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-magenta"></i>
+                    <span>Global nomad logistics & safe side-hustles</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t border-white/5 pt-4 mt-6 flex justify-between items-center text-[10px] font-mono">
+                <span class="text-zinc-500">INITIATION: ONLINE</span>
+                <span id="skill-trigger-freelance_unlock" class="text-neon-magenta group-hover:underline uppercase tracking-wide font-semibold flex items-center gap-1">EXPAND_NODE [🗁]</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Twitch / Hive -->
+            <div
+              onclick="toggleSkillDetail('gaming_identity')"
+              class="border border-neon-yellow/30 hover:border-neon-yellow/80 bg-cyber-dark/60 rounded-lg p-6 cursor-pointer flex flex-col justify-between transition-all duration-300 relative select-none group"
+            >
+              <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center text-[10px] font-mono tracking-wider text-zinc-500">
+                  <span class="font-semibold">GAMING_IDENTITY://TASHIBEE.sys</span>
+                  <span class="px-1.5 py-0.5 border rounded bg-black/40 border-white/5 uppercase">SYS_LOAD: 91%</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-terminal font-bold uppercase text-neon-yellow tracking-wider mb-2.5 flex items-center gap-2">
+                    <i data-lucide="radio" class="w-5 h-5"></i>
+                    tashibee // Cyber-Hive
+                  </h3>
+                  <p class="text-xs md:text-sm text-zinc-300 font-sans leading-relaxed">
+                    Step into the Bumblebee gaming terminal. Live-streaming game development, computer science mentoring, and cyber-goth tech talk on Twitch.
+                  </p>
+                </div>
+                <div class="w-full bg-cyber-black h-1.5 rounded-sm overflow-hidden mb-2">
+                  <div class="h-full bg-neon-yellow" style="width: 91%"></div>
+                </div>
+
+                <!-- Expanded elements -->
+                <div id="skill-details-gaming_identity" class="hidden overflow-hidden border-t border-white/5 pt-4 flex flex-col gap-3 font-terminal text-xs">
+                  <span class="text-neon-yellow text-[10px] tracking-widest font-mono uppercase block mb-1">⚙️ RUNNING PROTOCOL_METRICS:</span>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-yellow"></i>
+                    <span>Twitch channel: tashibee live stream</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-yellow"></i>
+                    <span>Bumblebee-themed aesthetic and gaming stream setups</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-yellow"></i>
+                    <span>Cooperative coding hangouts and game jam showcases</span>
+                  </div>
+                  <div class="flex gap-2 items-start text-zinc-300">
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 text-neon-yellow"></i>
+                    <span>Alternative tech community centered on gaming, faith, and tech</span>
+                  </div>
+
+                  <a
+                    href="https://twitch.tv/tashibee"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onclick="event.stopPropagation(); playCyberSound('success');"
+                    class="mt-2.5 py-2 px-3 bg-neon-yellow text-cyber-black text-center font-bold flex items-center justify-center gap-2 rounded hover:brightness-110 transition-all font-terminal tracking-wider animate-pulse select-none text-xs"
+                  >
+                    <i data-lucide="play" class="w-3.5 h-3.5 fill-cyber-black text-cyber-black"></i>
+                    LAUNCH STREAM://TASHIBEE
+                  </a>
+                </div>
+              </div>
+
+              <div class="border-t border-white/5 pt-4 mt-6 flex justify-between items-center text-[10px] font-mono">
+                <span class="text-zinc-500">INITIATION: ONLINE</span>
+                <span id="skill-trigger-gaming_identity" class="text-neon-yellow group-hover:underline uppercase tracking-wide font-semibold flex items-center gap-1">EXPAND_NODE [🗁]</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- PROJECT ARCHIVE LOGS SECTION -->
+        <section id="portfolio" class="py-16 px-4 md:px-8 max-w-7xl mx-auto border-b border-neon-cyan/10">
+          <div class="flex items-center gap-2 mb-10 text-xs font-mono text-neon-purple tracking-widest uppercase">
+            <span class="w-1.5 h-1.5 bg-neon-purple rounded-full"></span>
+            <span>INDEX_LOG://PROJECT_ARCHIVE://PORTFOLIO_LOGS</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left panel: logs listing -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+              <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-terminal font-bold text-white uppercase tracking-wider">
+                  DATA_VAULT://SYSTEM_LOGS
+                </h2>
+                <p class="text-zinc-400 font-sans text-xs md:text-sm">
+                  Archived systems files, neural network weights, open-source empowerment packages, and real computer science projects. Click to query individual log buffers.
+                </p>
+              </div>
+
+              <!-- Filter tabs rail -->
+              <div class="flex flex-wrap gap-2 border-b border-white/5 pb-4 text-xs font-terminal select-none">
+                <button onclick="filterArchive('ALL')" data-filter-btn="ALL" class="px-3 py-1.5 border rounded cursor-pointer transition-all bg-neon-purple/20 border-neon-purple text-neon-purple font-bold shadow-[0_0_8px_rgba(157,78,221,0.25)]">📁 ALL</button>
+                <button onclick="filterArchive('CODING')" data-filter-btn="CODING" class="px-3 py-1.5 border rounded cursor-pointer transition-all border-white/10 hover:border-white/25 text-zinc-400 bg-cyber-black/40">📁 CODING</button>
+                <button onclick="filterArchive('AI_EXPERIMENT')" data-filter-btn="AI_EXPERIMENT" class="px-3 py-1.5 border rounded cursor-pointer transition-all border-white/10 hover:border-white/25 text-zinc-400 bg-cyber-black/40">📁 AI_EXPERIMENT</button>
+                <button onclick="filterArchive('STUDENT_WORK')" data-filter-btn="STUDENT_WORK" class="px-3 py-1.5 border rounded cursor-pointer transition-all border-white/10 hover:border-white/25 text-zinc-400 bg-cyber-black/40">📁 STUDENT_WORK</button>
+                <button onclick="filterArchive('VALUES')" data-filter-btn="VALUES" class="px-3 py-1.5 border rounded cursor-pointer transition-all border-white/10 hover:border-white/25 text-zinc-400 bg-cyber-black/40">✝️ PURPOSES // VALUES</button>
+              </div>
+
+              <!-- Dynamic Log row boxes -->
+              <div id="archive-logs-list" class="flex flex-col gap-3 min-h-[300px]">
+                <!-- Injected dynamically by script.js on load / filter -->
+              </div>
+            </div>
+
+            <!-- Right panel: Active buffer Diagnostics -->
+            <div class="lg:col-span-4 lg:sticky lg:top-24">
+              <div id="log-diagnostics-details" class="border border-neon-cyan/35 bg-cyber-black rounded-lg p-5 border-glow-cyan flex flex-col gap-4 text-xs font-mono relative overflow-hidden">
+                <div class="border border-white/5 bg-cyber-dark/40 rounded-lg p-8 flex flex-col justify-center items-center text-center text-zinc-500 font-terminal gap-4.5 min-h-[340px]">
+                  <div class="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center bg-black/20 text-zinc-600 animate-pulse">
+                    <i data-lucide="folder-git" class="w-6 h-6"></i>
+                  </div>
+                  <div>
+                    <div class="text-zinc-400 font-bold uppercase mb-1">DIAGNOSTICS BUFFER IDLE</div>
+                    <p class="text-xs font-sans text-zinc-500 max-w-xs leading-relaxed">
+                      Select any project, AI experiment, or student logging protocol from the Data Vault directory file listing to boot diagnostics.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECURE TUNNEL COMMUNICATION SIGNAL SECTION -->
+        <section id="contact" class="py-16 px-4 md:px-8 max-w-7xl mx-auto border-b border-neon-cyan/10">
+          <div class="flex items-center gap-2 mb-10 text-xs font-mono text-neon-yellow tracking-widest uppercase">
+            <span class="w-1.5 h-1.5 bg-neon-yellow rounded-full"></span>
+            <span>INDEX_LOG://COMM_SIGNAL://CONTACT_INTERFACE</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Panel: status ledger and history logs -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+              <div class="border border-neon-yellow/30 bg-cyber-goth/30 rounded-lg p-6 border-glow-yellow relative">
+                <h2 class="text-2xl font-terminal font-bold text-white uppercase tracking-wider mb-3.5 flex items-center gap-2">
+                  <i data-lucide="key" class="w-5 h-5 text-neon-yellow"></i>
+                  SECURE_TUNNEL
+                </h2>
+                <p class="text-xs md:text-sm text-zinc-400 font-sans leading-relaxed mb-4">
+                  Submit your coordinate files and message logs. Our security pipeline encrypts transmissions via multi-hop nodes to verify secure handshakes. You can also voluntarily fuel caffeine cells via Coffee Protocols.
+                </p>
+
+                <!-- Status Console window -->
+                <div id="tunnel-logs-window" class="bg-cyber-black/80 border border-neon-yellow/20 rounded p-4 font-mono text-[10px] sm:text-xs text-neon-yellow flex flex-col gap-1.5 max-h-[180px] overflow-y-auto scrollbar-none select-none">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-neon-magenta">&gt;</span>
+                    <span>CIPHER_UPLINK Status : OK</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-neon-magenta">&gt;</span>
+                    <span>TUNNEL_ROUTE: Port 3000 Verified</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-neon-magenta">&gt;</span>
+                    <span>HONEY_CAFFEINE_STOCK: Port Active</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-neon-magenta">&gt;</span>
+                    <span>STRIKE_RATE: Stable</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- History Logs ledger -->
+              <div id="transmissions-listing-section" class="hidden border border-white/5 bg-cyber-dark/40 rounded-lg p-5 flex flex-col gap-3 font-terminal">
+                <div class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2 select-none">
+                  <i data-lucide="database" class="w-4 h-4 text-neon-cyan"></i>
+                  <span>TRANSMITTED SIGNALS HISTORY LOG</span>
+                </div>
+                <div id="transmissions-list-container" class="flex flex-col gap-2.5 max-h-[250px] overflow-y-auto">
+                  <!-- Injected dynamically by script.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: secure tabs form -->
+            <div class="lg:col-span-7 border border-neon-cyan/20 bg-cyber-dark/80 rounded-lg p-6 md:p-8 flex flex-col gap-6 relative">
+              <div class="absolute top-4 right-4 text-[9px] font-mono text-neon-cyan/40">SECURE_DOCK</div>
+
+              <!-- Tabs rail -->
+              <div class="flex border-b border-white/5 pb-3 gap-2 select-none">
+                <button
+                  id="tab-msg"
+                  onclick="setContactMode('MESSAGE')"
+                  class="px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-cyan text-neon-cyan bg-neon-cyan/10 transition-all"
+                >
+                  ✉ SECURE_MESSAGE
+                </button>
+                <button
+                  id="tab-coffee"
+                  onclick="setContactMode('COFFEE')"
+                  class="px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all flex items-center gap-2"
+                >
+                  ☕ BUY_ME_A_COFFEE
+                </button>
+              </div>
+
+              <!-- Info banner -->
+              <div id="contact-info-text" class="border border-white/5 bg-black/40 rounded p-4 text-xs font-sans text-zinc-300">
+                Draft generic transmissions, ask queries, or propose contract collaborations directly. This transaction registers instantly to the local buffer index.
+              </div>
+
+              <!-- Contact Form -->
+              <form onsubmit="handleTransmit(event)" class="flex flex-col gap-5">
+                
+                <!-- Coffee recharge grid overlay -->
+                <div id="coffee-fuel-grid" class="hidden flex flex-col gap-3 font-terminal">
+                  <label class="text-neon-yellow text-xs uppercase tracking-wider font-bold">SELECT CAFFEINE PROTOCOLS:</label>
+                  <div class="grid grid-cols-3 gap-3 select-none">
+                    <button
+                      type="button"
+                      onclick="selectCoffeeAmount(5)"
+                      data-coffee-btn="5"
+                      class="p-3 border border-neon-yellow bg-neon-yellow/10 text-white font-bold rounded text-center flex flex-col gap-1.5 items-center justify-center transition-all"
+                    >
+                      <i data-lucide="coffee" class="w-5 h-5 text-neon-yellow animate-pulse"></i>
+                      <span class="text-[11px] uppercase tracking-wider">1 Cup</span>
+                      <span class="text-xs text-neon-green font-mono font-bold">$5</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onclick="selectCoffeeAmount(15)"
+                      data-coffee-btn="15"
+                      class="p-3 border border-white/5 bg-cyber-black/40 text-zinc-400 hover:border-white/10 rounded text-center flex flex-col gap-1.5 items-center justify-center transition-all"
+                    >
+                      <div class="flex gap-0.5">
+                        <i data-lucide="coffee" class="w-4 h-4 text-neon-yellow"></i>
+                        <i data-lucide="coffee" class="w-4 h-4 text-neon-yellow"></i>
+                      </div>
+                      <span class="text-[11px] uppercase tracking-wider">3 Cups</span>
+                      <span class="text-xs text-neon-green font-mono font-bold">$15</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onclick="selectCoffeeAmount(25)"
+                      data-coffee-btn="25"
+                      class="p-3 border border-white/5 bg-cyber-black/40 text-zinc-400 hover:border-white/10 rounded text-center flex flex-col gap-1.5 items-center justify-center transition-all"
+                    >
+                      <div class="flex gap-0.5">
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-neon-yellow"></i>
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-neon-yellow"></i>
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-neon-yellow"></i>
+                      </div>
+                      <span class="text-[11px] uppercase tracking-wider">5 Cups</span>
+                      <span class="text-xs text-neon-green font-mono font-bold">$25</span>
+                    </button>
+                  </div>
+
+                  <div class="flex flex-col gap-1.5 mt-1.5">
+                    <label class="text-[11px] text-zinc-500 uppercase font-mono">CUSTOM RECHARGE VALUE (USD $):</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-500 font-mono text-xs font-bold">$</div>
+                      <input
+                        id="custom-coffee-input"
+                        type="number"
+                        min="1"
+                        max="1000"
+                        placeholder="Or enter any custom amount..."
+                        oninput="handleCustomCoffee(event)"
+                        class="w-full pl-8 pr-4 py-2 bg-cyber-black border border-white/10 focus:border-neon-yellow text-white text-xs rounded outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Name -->
+                <div class="flex flex-col gap-1.5 font-terminal text-xs">
+                  <label for="contact-name" class="text-neon-cyan uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    SENDER_COORDINATES://NAME
+                  </label>
+                  <input
+                    id="contact-name"
+                    type="text"
+                    placeholder="e.g., Cyber_Valkyrie_88"
+                    class="w-full px-4 py-2.5 bg-cyber-black border border-neon-cyan/25 focus:border-neon-cyan text-white text-sm rounded outline-none font-mono transition-all placeholder-zinc-700"
+                    required
+                  />
+                </div>
+
+                <!-- Form Email -->
+                <div class="flex flex-col gap-1.5 font-terminal text-xs">
+                  <label for="contact-email" class="text-neon-cyan uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                    TUNNEL_GATEWAY://EMAIL_UPLINK
+                  </label>
+                  <input
+                    id="contact-email"
+                    type="email"
+                    placeholder="e.g., identity@secmail.net"
+                    class="w-full px-4 py-2.5 bg-cyber-black border border-neon-cyan/25 focus:border-neon-cyan text-white text-sm rounded outline-none font-mono transition-all placeholder-zinc-700"
+                    required
+                  />
+                </div>
+
+                <!-- Form Category dropdown -->
+                <div class="flex flex-col gap-1.5 font-terminal text-xs">
+                  <label for="contact-category" class="text-neon-cyan uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <i data-lucide="database" class="w-3.5 h-3.5 animate-pulse text-neon-cyan"></i>
+                    PROTOCOL_CATEGORY://TUNNEL_STREAM_FILTER
+                  </label>
+                  <select
+                    id="contact-category"
+                    class="w-full px-4 py-2.5 bg-cyber-black border border-neon-cyan/25 focus:border-neon-cyan text-white text-sm rounded outline-none font-mono transition-all cursor-pointer"
+                  >
+                    <option value="Computer Science Support" class="bg-cyber-dark text-white">Computer Science Support</option>
+                    <option value="Gaming Ideas" class="bg-cyber-dark text-white">Gaming Ideas</option>
+                    <option value="Book Club" class="bg-cyber-dark text-white">Book Club</option>
+                    <option value="Prayer Request" class="bg-cyber-dark text-white">Prayer Request</option>
+                  </select>
+                </div>
+
+                <!-- Form Message payload -->
+                <div class="flex flex-col gap-1.5 font-terminal text-xs">
+                  <label id="message-label" for="message-input" class="text-neon-cyan uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                    TRANSMISSION://RAW_MESSAGE_PAYLOAD
+                  </label>
+                  <textarea
+                    id="message-input"
+                    rows="4"
+                    placeholder="Draft your digital package protocols here..."
+                    class="w-full px-4 py-2.5 bg-cyber-black border border-neon-cyan/25 focus:border-neon-cyan text-white text-sm rounded outline-none font-sans transition-all placeholder-zinc-700 resize-none"
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="mt-2 text-center">
+                  <button
+                    id="submit-btn"
+                    type="submit"
+                    class="w-full py-4 border border-neon-cyan hover:bg-neon-cyan/15 text-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.1)] font-terminal font-bold uppercase tracking-widest rounded transition-all cursor-pointer shadow-md flex items-center justify-center gap-3 select-none"
+                  >
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>Send Signal / Transmit Message</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- SYSTEM FOOTER -->
+      <footer class="bg-cyber-black text-xs font-terminal py-12 px-6 border-t border-neon-cyan/15 relative overflow-hidden select-none">
+        <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-neon-magenta/40 to-transparent"></div>
+
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+          
+          <div class="flex flex-col gap-2 max-w-md">
+            <div class="flex items-center justify-center md:justify-start gap-2 text-neon-yellow">
+              <span class="font-retro text-2xl select-none">🐝</span>
+              <span class="font-bold tracking-widest text-[#fefe00]">TASHIBEE // CYBER_HIVE</span>
+            </div>
+            <p class="font-sans text-xs text-zinc-500 leading-relaxed">
+              Uncompromising alternate tech paths. Computer Science, AI, values, and freelancing. Crafted for girls and young women ready to build a high-income digital kingdom of global freedom.
+            </p>
+          </div>
+
+          <div class="flex flex-col items-center max-w-sm gap-2">
+            <div class="flex gap-1 items-center text-neon-magenta text-[10px] font-mono leading-none tracking-widest">
+              <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+              <span>HEURISTIC://SYSTEM_CREED</span>
+            </div>
+            <p class="font-sans text-xs text-zinc-400 italic text-center leading-relaxed">
+              &ldquo;Break out of traditional corporate grids. Your code is your currency, your faith is your foundation, and your freedom is non-conforming. Hack your reality.&rdquo;
+            </p>
+          </div>
+
+          <div class="flex flex-col items-center md:items-end gap-3.5">
+            <div class="flex items-center gap-2">
+              <a
+                href="https://www.twitch.tv/tashibee"
+                target="_blank"
+                rel="noopener noreferrer"
+                onclick="playCyberSound('success')"
+                class="py-2 px-3 border border-[#9146FF]/30 hover:border-[#9146FF] hover:bg-[#9146FF]/10 text-white rounded flex items-center gap-2 transition-all font-mono tracking-wider text-[11px]"
+              >
+                <i data-lucide="twitch" class="w-3.5 h-3.5 text-[#9146FF]"></i>
+                <span>TWITCH: TASHIBEE</span>
+              </a>
+            </div>
+            <p class="font-mono text-[9px] text-zinc-600 block">
+              PROTOCOL_VERSION: v4.11-SECURE &bull; 2026 &bull; ALL ENCRYPTED LINKAGES SECURE
+            </p>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+
+    <!-- Load static script.js logic after elements render -->
+    <script src="./src/script.js" defer></script>
   </body>
 </html>
-
