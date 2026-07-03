@@ -154,22 +154,22 @@ const state = {
   dreams: [
     {
       id: "dream_1",
-      category: "FREELANCING",
-      title: "Launch an autonomous developer consultancy on contract basis",
+      category: "TEACHING",
+      title: "Launch a gothic coding curriculum for alternative youth",
       targetYear: "2026",
       status: "ACTIVE_ROUTE"
     },
     {
       id: "dream_2",
-      category: "TRAVEL",
-      title: "Set up a nomadic gaming hotspot station in Tokyo & Reykjavík",
+      category: "GAMING",
+      title: "Design and build an indie mecha platformer live on stream",
       targetYear: "2027",
       status: "INITIALIZING"
     },
     {
       id: "dream_3",
-      category: "FINANCIAL_INDEP",
-      title: "Achieve passive subscription income stream via digital products",
+      category: "SPOOKY",
+      title: "Release a weekly gothic tech/horror analysis podcast series",
       targetYear: "2028",
       status: "COMPILED"
     }
@@ -191,16 +191,16 @@ const state = {
       color: "cyan"
     },
     {
-      id: "freelance_unlock",
-      codeName: "FREELANCE_UNLOCK_PROTOCOL",
+      id: "teaching_spooky",
+      codeName: "TEACHING_SPOOKY_PROTOCOL",
       extension: "dll",
-      title: "Alternative Freelance Protocol",
-      description: "Gain financial sovereignty, master remote work pipelines, and unlock digital income strategies to escape traditional corporate lifestyles.",
+      title: "Teaching & Spooky Content",
+      description: "Equip bold students with elite programming/AI knowledge while producing gothic cyberpunk analysis, spooky game lore, and dark tech speculation.",
       details: [
-        "Alternative career path strategies",
-        "Drafting premium proposals & building client funnels",
-        "Leveraging AI to optimize your development flow",
-        "Global nomad logistics & safe side-hustles"
+        "Interactive Computer Science & AI teaching curricula",
+        "Cyber-goth tech talks & spooky culture analysis",
+        "Stream-based code mentorship pipelines",
+        "Creating value-driven Christian tech frameworks"
       ],
       systemLoad: 68,
       color: "magenta"
@@ -261,10 +261,10 @@ const state = {
       title: "Goth Techie Empowerment Framework",
       category: "VALUES",
       date: "2026-03-30",
-      description: "A comprehensive guide, resource directory, and open-source starter folder enabling Goth Techies globally to start remote freelancing.",
-      tags: ["Mentorship", "Freelancing", "Open Source", "Resource Kit"],
+      description: "A comprehensive guide, resource directory, and open-source starter folder enabling Goth Techies globally to study computer science and build spooky content.",
+      tags: ["Mentorship", "Teaching", "Gaming", "Resource Kit"],
       status: "COMPILED",
-      extendedLog: "Authored detailed workflows on managing client expectations, design pairing, secure contract platforms, and scaling single-dev freelancers into cooperative networks."
+      extendedLog: "Authored detailed workflows on educational curricula, live streaming schedules, building gothic narratives, and mentoring young women in AI."
     }
   ],
   transmissions: []
@@ -318,7 +318,8 @@ function startBootSequence() {
     "💻 KERNEL://Loading core-goth styles & custom modules",
     "🐝 CYBER_HIVE://Harnessing bumblebee gaming protocols",
     "🤖 NEURAL_NET://Integrating AI & Machine Learning matrix",
-    "💼 FREELANCE_UPLINK://Active client pipelines verified",
+    "🎓 EDUCATION_GATE://Alternative teaching frameworks active",
+    "🖤 SPOOKY_CORE://Spooky gothic content segments loaded",
     "✝️ CREDENTIALS://Value-driven Christian directives online",
     "🔥 STATUS://All sub-systems executing with 100% agency"
   ];
@@ -457,8 +458,9 @@ function renderDreams() {
 
   state.dreams.forEach((dream) => {
     let catClass = "bg-neon-yellow/10 border-neon-yellow/35 text-neon-yellow";
-    if (dream.category === "FREELANCING") catClass = "bg-neon-purple/10 border-neon-purple/35 text-neon-purple";
-    if (dream.category === "TRAVEL") catClass = "bg-neon-cyan/10 border-neon-cyan/35 text-neon-cyan";
+    if (dream.category === "TEACHING") catClass = "bg-neon-purple/10 border-neon-purple/35 text-neon-purple";
+    if (dream.category === "GAMING") catClass = "bg-neon-cyan/10 border-neon-cyan/35 text-neon-cyan";
+    if (dream.category === "SPOOKY") catClass = "bg-neon-magenta/10 border-neon-magenta/35 text-neon-magenta";
 
     const div = document.createElement("div");
     div.className = "border border-white/5 hover:border-white/15 bg-black/40 rounded-lg p-4 flex flex-col justify-between relative group transition-all";
