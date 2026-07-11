@@ -151,6 +151,7 @@ function playCyberSound(type) {
 // Global UI State
 const state = {
   activeHobby: "anime",
+  activeImageSource: "stock",
   dreams: [
     {
       id: "dream_1",
@@ -231,7 +232,22 @@ const state = {
       description: "An offline-first browser OS using Tailwind v4, custom Web Audio synthesis, and dynamic responsive layout blocks targeting alternative youth.",
       tags: ["React 19", "Tailwind 4", "Web Audio API", "Framer Motion"],
       status: "COMPILED",
-      extendedLog: "Successfully optimized file sizes and bundle structure to comply with platform parameters. Loaded Share Tech Mono dynamically, implementing retro curved CRT matrix effects with pure canvas and CSS rendering."
+      extendedLog: "Successfully optimized file sizes and bundle structure to comply with platform parameters. Loaded Share Tech Mono dynamically, implementing retro curved CRT matrix effects with pure canvas and CSS rendering.",
+      embedHtml: `<div class="mt-4 border-t border-white/5 pt-4">
+        <span class="text-neon-cyan uppercase block mb-1.5 text-[10px] font-bold tracking-wider flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
+          AI_VIDEO_UPLINK://STREAM_READY
+        </span>
+        <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.5); overflow: hidden; border-radius: 8px; will-change: transform;" class="border border-neon-cyan/20">
+          <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+            src="https://www.canva.com/design/DAHOqcFLJg8/3wvBD1Hxxf6HFVs7tbgJ-w/watch?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+          </iframe>
+        </div>
+        <div class="mt-2 text-[10px] font-sans text-zinc-500 flex justify-between items-center">
+          <span>Video: <a href="https://www.canva.com/design/DAHOqcFLJg8/3wvBD1Hxxf6HFVs7tbgJ-w/watch?utm_content=DAHOqcFLJg8&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener" class="text-neon-cyan hover:underline font-bold">Lego-Capybara</a></span>
+          <span>By Tashenea Burns-young</span>
+        </div>
+      </div>`
     },
     {
       id: "arch_02",
@@ -364,6 +380,47 @@ function startBootSequence() {
   }, 180);
 }
 
+function applyImageSource() {
+  const avatarImg = document.getElementById("profile-avatar-img");
+  const portraitImg = document.getElementById("profile-portrait-img");
+  const btnStock = document.getElementById("btn-src-stock");
+  const btnUploaded = document.getElementById("btn-src-uploaded");
+
+  const source = state.activeImageSource || "stock";
+
+  if (avatarImg) {
+    avatarImg.src = source === "stock" 
+      ? "assets/images/stock_goth_avatar_1783792279555.jpg" 
+      : "assets/images/Profile_pic.jpg";
+    avatarImg.alt = source === "stock" ? "Cyber-Goth Stock Avatar" : "Tashenea's Uploaded Avatar";
+  }
+
+  if (portraitImg) {
+    portraitImg.src = source === "stock" 
+      ? "assets/images/stock_goth_portrait_1783792292032.jpg" 
+      : "assets/images/Profile_pic.jpg";
+    portraitImg.alt = source === "stock" ? "Cyber-Goth Stock Portrait" : "Tashenea's Uploaded Portrait";
+  }
+
+  // Update button styles
+  if (btnStock && btnUploaded) {
+    if (source === "stock") {
+      btnStock.className = "py-1.5 rounded border border-neon-cyan bg-neon-cyan/10 text-neon-cyan text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:bg-neon-cyan/20 cursor-pointer text-center";
+      btnUploaded.className = "py-1.5 rounded border border-white/10 bg-black/40 text-zinc-400 text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:border-neon-magenta/50 hover:text-neon-magenta cursor-pointer text-center";
+    } else {
+      btnStock.className = "py-1.5 rounded border border-white/10 bg-black/40 text-zinc-400 text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:border-neon-cyan/50 hover:text-neon-cyan cursor-pointer text-center";
+      btnUploaded.className = "py-1.5 rounded border border-neon-magenta bg-neon-magenta/10 text-neon-magenta text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:bg-neon-magenta/20 cursor-pointer text-center";
+    }
+  }
+}
+
+function switchProfileImageSource(source) {
+  playCyberSound("click");
+  state.activeImageSource = source;
+  savePersistentData();
+  applyImageSource();
+}
+
 function handleAccess() {
   playCyberSound("success");
   const bootScreen = document.getElementById("boot-screen");
@@ -377,6 +434,8 @@ function handleAccess() {
     lucide.createIcons();
     startClock();
     loadPersistentData();
+    applyImageSource();
+    initArchive();
     renderDreams();
     renderTransmissions();
   }, 700);
@@ -547,9 +606,56 @@ function toggleSkillDetail(id) {
 }
 
 // Project Archive diagnostics display
-let activeLogId = null;
+let activeLogId = "arch_01";
 const filters = ["ALL", "CODING", "AI_EXPERIMENT", "STUDENT_WORK", "VALUES"];
 let selectedFilter = "ALL";
+
+function initArchive() {
+  renderArchiveLogsList();
+  
+  const detailsContainer = document.getElementById("log-diagnostics-details");
+  const log = state.archiveLogs.find(l => l.id === activeLogId);
+  if (log && detailsContainer) {
+    detailsContainer.innerHTML = `
+      <div class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-neon-cyan to-transparent animate-pulse-glow"></div>
+
+      <div class="flex items-center justify-between border-b border-white/5 pb-2">
+        <span class="text-neon-cyan uppercase font-bold tracking-wider">LOG BUFFER DIAGNOSTICS</span>
+        <span class="text-zinc-600 font-bold">${log.hash}</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div class="text-white text-sm font-terminal font-bold uppercase tracking-wider mb-1">
+          ${log.title}
+        </div>
+        <div>
+          <span class="text-zinc-500 uppercase block mb-1">Extended Log Metrics:</span>
+          <div class="text-zinc-300 font-sans leading-relaxed text-xs p-2.5 bg-cyber-dark rounded border border-white/5">
+            ${log.extendedLog}
+          </div>
+        </div>
+        ${log.embedHtml ? log.embedHtml : ""}
+      </div>
+
+      <div>
+        <span class="text-zinc-500 uppercase block mb-1.5">Active Tech Tokens:</span>
+        <div class="flex flex-wrap gap-1.5">
+          ${log.tags.map(tag => `
+            <span class="px-2 py-1 border border-neon-cyan/20 bg-neon-cyan/5 text-neon-cyan rounded text-[10px]">
+              #${tag}
+            </span>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="border-t border-white/5 pt-3 mt-1 flex justify-between items-center text-[10px] text-zinc-500">
+        <span>COMPILER: v19.2.0-secure</span>
+        <span>STATUS: SECURE_VAULT</span>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+}
 
 function filterArchive(filter) {
   playCyberSound("click");
@@ -651,10 +757,11 @@ function selectLogDiagnostics(id) {
         </div>
         <div>
           <span class="text-zinc-500 uppercase block mb-1">Extended Log Metrics:</span>
-          <p class="text-zinc-300 font-sans leading-relaxed text-xs p-2.5 bg-cyber-dark rounded border border-white/5">
+          <div class="text-zinc-300 font-sans leading-relaxed text-xs p-2.5 bg-cyber-dark rounded border border-white/5">
             ${log.extendedLog}
-          </p>
+          </div>
         </div>
+        ${log.embedHtml ? log.embedHtml : ""}
       </div>
 
       <div>
@@ -907,6 +1014,7 @@ function savePersistentData() {
   try {
     localStorage.setItem("bee_net_dream_protocols", JSON.stringify(state.dreams));
     localStorage.setItem("bee_net_transmissions", JSON.stringify(state.transmissions));
+    localStorage.setItem("bee_net_image_source", state.activeImageSource);
   } catch (_) {}
 }
 
@@ -919,6 +1027,10 @@ function loadPersistentData() {
     const savedTransmissions = localStorage.getItem("bee_net_transmissions");
     if (savedTransmissions) {
       state.transmissions = JSON.parse(savedTransmissions);
+    }
+    const savedImageSource = localStorage.getItem("bee_net_image_source");
+    if (savedImageSource) {
+      state.activeImageSource = savedImageSource;
     }
   } catch (_) {}
 }
@@ -943,4 +1055,5 @@ window.setContactMode = setContactMode;
 window.selectCoffeeAmount = selectCoffeeAmount;
 window.handleCustomCoffee = handleCustomCoffee;
 window.handleTransmit = handleTransmit;
+window.switchProfileImageSource = switchProfileImageSource;
 

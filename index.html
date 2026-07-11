@@ -214,6 +214,7 @@
                 <!-- Avatar Box -->
                 <div class="relative w-40 h-40 mb-6 flex items-center justify-center border-2 border-neon-magenta rounded-full bg-cyber-black p-1 shadow-[0_0_15px_rgba(255,0,255,0.25)] overflow-hidden">
                   <img
+                    id="profile-avatar-img"
                     src="assets/images/stock_goth_avatar_1783792279555.jpg"
                     alt="Cyber-Goth Stock Avatar"
                     class="w-full h-full object-cover rounded-full z-10"
@@ -248,6 +249,23 @@
                     <span class="text-neon-green font-mono">LEVEL_CORE</span>
                   </div>
                 </div>
+
+                <!-- Aesthetic Source Selector -->
+                <div class="w-full mt-5 p-3.5 border border-neon-cyan/20 bg-black/40 rounded flex flex-col gap-2 font-terminal text-xs">
+                  <span class="text-neon-cyan tracking-wider uppercase text-[10px] flex items-center gap-1.5 font-bold">
+                    <i data-lucide="image" class="w-3.5 h-3.5 animate-pulse text-neon-cyan"></i>
+                    AESTHETIC_DECK://SOURCE_SELECTOR
+                  </span>
+                  <div class="grid grid-cols-2 gap-2 mt-1">
+                    <button id="btn-src-stock" onclick="switchProfileImageSource('stock')" class="py-1.5 rounded border border-neon-cyan bg-neon-cyan/10 text-neon-cyan text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:bg-neon-cyan/20 cursor-pointer text-center">
+                      Cyber Stock
+                    </button>
+                    <button id="btn-src-uploaded" onclick="switchProfileImageSource('uploaded')" class="py-1.5 rounded border border-white/10 bg-black/40 text-zinc-400 text-[10px] uppercase font-bold tracking-wider transition-all duration-300 hover:border-neon-magenta/50 hover:text-neon-magenta cursor-pointer text-center">
+                      My Photo
+                    </button>
+                  </div>
+                </div>
+
               </div>
 
               <div data-cyber-hover class="border border-neon-cyan/20 bg-cyber-navy/40 p-5 rounded-lg flex flex-col gap-4 border-glow-cyan">
@@ -307,6 +325,7 @@
                       <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-neon-cyan z-20"></div>
                       <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-neon-cyan z-20"></div>
                       <img
+                        id="profile-portrait-img"
                         src="assets/images/stock_goth_portrait_1783792292032.jpg"
                         alt="Cyber-Goth Stock Portrait"
                         class="w-full h-auto object-cover rounded-md border border-zinc-800 transition-all duration-300 group-hover:scale-105"
