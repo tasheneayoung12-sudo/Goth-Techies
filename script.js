@@ -234,13 +234,20 @@ const state = {
       status: "COMPILED",
       extendedLog: "Successfully optimized file sizes and bundle structure to comply with platform parameters. Loaded Share Tech Mono dynamically, implementing retro curved CRT matrix effects with pure canvas and CSS rendering.",
       embedHtml: `<div class="mt-4 border-t border-white/5 pt-4">
-        <span class="text-neon-cyan uppercase block mb-1.5 text-[10px] font-bold tracking-wider flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
-          AI_VIDEO_UPLINK://STREAM_READY
-        </span>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-neon-cyan uppercase block text-[10px] font-bold tracking-wider flex items-center gap-1.5">
+            <span class="inline-block w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
+            AI_VIDEO_UPLINK://STREAM_READY
+          </span>
+          <button onclick="window.replayCanvaVideo()" class="px-2.5 py-1 border border-neon-cyan/30 hover:border-neon-cyan bg-neon-cyan/15 hover:bg-neon-cyan/30 text-neon-cyan rounded text-[10px] font-mono tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer hover:shadow-[0_0_8px_rgba(0,245,255,0.4)]">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> REPLAY_STREAM
+          </button>
+        </div>
         <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.5); overflow: hidden; border-radius: 8px; will-change: transform;" class="border border-neon-cyan/20">
-          <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
-            src="https://www.canva.com/design/DAHOqcFLJg8/3wvBD1Hxxf6HFVs7tbgJ-w/watch?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+          <iframe id="canva-video-iframe" loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+            src="https://www.canva.com/design/DAHOqcFLJg8/3wvBD1Hxxf6HFVs7tbgJ-w/watch?embed&autoplay=1&loop=1" 
+            allowfullscreen="allowfullscreen" 
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; web-share">
           </iframe>
         </div>
         <div class="mt-2 text-[10px] font-sans text-zinc-500 flex justify-between items-center">
@@ -390,15 +397,15 @@ function applyImageSource() {
 
   if (avatarImg) {
     avatarImg.src = source === "stock" 
-      ? "assets/images/stock_goth_avatar_1783792279555.jpg" 
-      : "assets/images/Profile_pic.jpg";
+      ? "./assets/images/stock_goth_avatar_1783792279555.jpg" 
+      : "./assets/images/Profile_pic.jpg";
     avatarImg.alt = source === "stock" ? "Cyber-Goth Stock Avatar" : "Tashenea's Uploaded Avatar";
   }
 
   if (portraitImg) {
     portraitImg.src = source === "stock" 
-      ? "assets/images/stock_goth_portrait_1783792292032.jpg" 
-      : "assets/images/Profile_pic.jpg";
+      ? "./assets/images/stock_goth_portrait_1783792292032.jpg" 
+      : "./assets/images/Profile_pic.jpg";
     portraitImg.alt = source === "stock" ? "Cyber-Goth Stock Portrait" : "Tashenea's Uploaded Portrait";
   }
 
@@ -421,24 +428,50 @@ function switchProfileImageSource(source) {
   applyImageSource();
 }
 
+function initializePageComponents() {
+  setupActiveNavObserver();
+  setupHovers();
+  lucide.createIcons();
+  startClock();
+  loadPersistentData();
+  
+  if (document.getElementById("profile-portrait-img") || document.getElementById("profile-avatar-img")) {
+    applyImageSource();
+  }
+  if (document.getElementById("archive-logs-list")) {
+    initArchive();
+  }
+  if (document.getElementById("dreams-grid-container")) {
+    renderDreams();
+  }
+  if (document.getElementById("transmissions-list-container")) {
+    renderTransmissions();
+  }
+}
+
 function handleAccess() {
   playCyberSound("success");
+  try {
+    sessionStorage.setItem("bee_net_booted", "true");
+  } catch (_) {}
   const bootScreen = document.getElementById("boot-screen");
   const workspaceScreen = document.getElementById("workspace-screen");
   
-  bootScreen.classList.add("transition-all", "duration-700", "opacity-0", "scale-95");
-  setTimeout(() => {
-    bootScreen.remove();
-    workspaceScreen.classList.remove("hidden");
-    setupHovers();
-    lucide.createIcons();
-    startClock();
-    loadPersistentData();
-    applyImageSource();
-    initArchive();
-    renderDreams();
-    renderTransmissions();
-  }, 700);
+  if (bootScreen) {
+    bootScreen.classList.add("transition-all", "duration-700", "opacity-0", "scale-95");
+    setTimeout(() => {
+      bootScreen.remove();
+      if (workspaceScreen) {
+        workspaceScreen.classList.remove("hidden");
+      }
+      initializePageComponents();
+    }, 700);
+  } else {
+    if (workspaceScreen) {
+      workspaceScreen.classList.remove("hidden");
+    }
+    initializePageComponents();
+  }
 }
 
 // Subculture/Hobby selection updates
@@ -1035,9 +1068,132 @@ function loadPersistentData() {
   } catch (_) {}
 }
 
+// Replay Canva Video Iframe helper
+function replayCanvaVideo() {
+  playCyberSound("success");
+  const iframe = document.getElementById("canva-video-iframe");
+  if (iframe) {
+    const currentSrc = iframe.src;
+    iframe.src = "";
+    // Brief timeout ensures browser reloads the iframe fresh
+    setTimeout(() => {
+      iframe.src = currentSrc;
+    }, 100);
+  }
+}
+
+// Mobile Navigation Drawer Toggle Handler
+let mobileMenuOpen = false;
+
+function toggleMobileMenu() {
+  playCyberSound("click");
+  mobileMenuOpen = !mobileMenuOpen;
+  
+  const nav = document.getElementById("navbar-links");
+  const controls = document.getElementById("taskbar-controls");
+  const iconClosed = document.getElementById("menu-icon-closed");
+  const iconOpened = document.getElementById("menu-icon-opened");
+  
+  if (nav && controls) {
+    if (mobileMenuOpen) {
+      nav.classList.remove("hidden");
+      nav.classList.add("flex");
+      controls.classList.remove("hidden");
+      controls.classList.add("flex");
+      if (iconClosed) iconClosed.classList.add("hidden");
+      if (iconOpened) iconOpened.classList.remove("hidden");
+    } else {
+      nav.classList.remove("flex");
+      nav.classList.add("hidden");
+      controls.classList.remove("flex");
+      controls.classList.add("hidden");
+      if (iconClosed) iconClosed.classList.remove("hidden");
+      if (iconOpened) iconOpened.classList.add("hidden");
+    }
+  }
+}
+
+function closeMobileMenu() {
+  mobileMenuOpen = false;
+  const nav = document.getElementById("navbar-links");
+  const controls = document.getElementById("taskbar-controls");
+  const iconClosed = document.getElementById("menu-icon-closed");
+  const iconOpened = document.getElementById("menu-icon-opened");
+  
+  if (window.innerWidth < 768) {
+    if (nav && controls) {
+      nav.classList.remove("flex");
+      nav.classList.add("hidden");
+      controls.classList.remove("flex");
+      controls.classList.add("hidden");
+      if (iconClosed) iconClosed.classList.remove("hidden");
+      if (iconOpened) iconOpened.classList.add("hidden");
+    }
+  }
+}
+
+// Active Nav link highlight based on the current page path
+function setupActiveNavObserver() {
+  const currentPath = window.location.pathname;
+  const navItems = [
+    { file: 'index.html', selector: 'a[href="index.html"]' },
+    { file: 'dossier.html', selector: 'a[href="dossier.html"]' },
+    { file: 'vault.html', selector: 'a[href="vault.html"]' },
+    { file: 'subculture.html', selector: 'a[href="subculture.html"]' },
+    { file: 'pipelines.html', selector: 'a[href="pipelines.html"]' },
+    { file: 'contact.html', selector: 'a[href="contact.html"]' }
+  ];
+
+  navItems.forEach(item => {
+    const el = document.querySelectorAll(item.selector);
+    el.forEach(link => link.classList.remove("active-nav"));
+  });
+
+  let activeItemSelector = 'a[href="index.html"]';
+  const matched = navItems.find(item => currentPath.includes(item.file));
+  if (matched) {
+    activeItemSelector = matched.selector;
+  } else {
+    // Fallback detection for clean routing or custom server paths
+    for (const item of navItems) {
+      const nameWithoutExtension = item.file.replace('.html', '');
+      if (currentPath.includes(nameWithoutExtension)) {
+        activeItemSelector = item.selector;
+        break;
+      }
+    }
+  }
+
+  const activeLinks = document.querySelectorAll(activeItemSelector);
+  activeLinks.forEach(link => link.classList.add("active-nav"));
+}
+
 // Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  startBootSequence();
+  const bootScreen = document.getElementById("boot-screen");
+  const workspaceScreen = document.getElementById("workspace-screen");
+
+  if (bootScreen) {
+    let booted = false;
+    try {
+      booted = sessionStorage.getItem("bee_net_booted") === "true";
+    } catch (_) {}
+
+    if (booted) {
+      bootScreen.remove();
+      if (workspaceScreen) {
+        workspaceScreen.classList.remove("hidden");
+      }
+      initializePageComponents();
+    } else {
+      startBootSequence();
+    }
+  } else {
+    if (workspaceScreen) {
+      workspaceScreen.classList.remove("hidden");
+    }
+    initializePageComponents();
+  }
 });
 
 // Expose functions to global scope (window) for inline HTML event attributes compatibility
@@ -1056,4 +1212,7 @@ window.selectCoffeeAmount = selectCoffeeAmount;
 window.handleCustomCoffee = handleCustomCoffee;
 window.handleTransmit = handleTransmit;
 window.switchProfileImageSource = switchProfileImageSource;
+window.replayCanvaVideo = replayCanvaVideo;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
 
