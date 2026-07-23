@@ -76,32 +76,42 @@
         <nav id="navbar-links" class="hidden md:flex flex-col md:flex-row items-center justify-center w-full md:w-auto gap-2 text-[10px] md:text-xs font-mono font-bold border-t border-white/5 md:border-none pt-3 md:pt-0 pb-1 md:pb-0">
           <a href="index.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-cyan px-2.5 py-1 border border-transparent hover:border-neon-cyan/40 hover:bg-neon-cyan/5 rounded transition-all text-zinc-400 hover:text-neon-cyan select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-cyan rounded-full hidden"></span>
-            <span>[01_HOME]</span>
+            <span>[01_HOME // Portal]</span>
           </a>
           <a href="dossier.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-magenta px-2.5 py-1 border border-transparent hover:border-neon-magenta/40 hover:bg-neon-magenta/5 rounded transition-all text-zinc-400 hover:text-neon-magenta select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-magenta rounded-full hidden"></span>
-            <span>[02_DOSSIER]</span>
+            <span>[02_DOSSIER // About & Bio]</span>
           </a>
           <a href="vault.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-purple px-2.5 py-1 border border-transparent hover:border-neon-purple/40 hover:bg-neon-purple/5 rounded transition-all text-zinc-400 hover:text-neon-purple select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-purple rounded-full hidden"></span>
-            <span>[03_VAULT]</span>
+            <span>[03_VAULT // Projects & Code Archive]</span>
           </a>
           <a href="subculture.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-yellow px-2.5 py-1 border border-transparent hover:border-neon-yellow/40 hover:bg-neon-yellow/5 rounded transition-all text-zinc-400 hover:text-neon-yellow select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-yellow rounded-full hidden"></span>
-            <span>[04_SUBCULTURE]</span>
+            <span>[04_SUBCULTURE // Anime, Music & Dreams]</span>
           </a>
           <a href="pipelines.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-cyan px-2.5 py-1 border border-transparent hover:border-neon-cyan/40 hover:bg-neon-cyan/5 rounded transition-all text-zinc-400 hover:text-neon-cyan select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-cyan rounded-full hidden"></span>
-            <span>[05_PIPELINES]</span>
+            <span>[05_PIPELINES // Tech Stack & Workflows]</span>
           </a>
           <a href="contact.html" onclick="playCyberSound('click'); closeMobileMenu()" class="nav-item nav-item-green px-2.5 py-1 border border-transparent hover:border-neon-green/40 hover:bg-neon-green/5 rounded transition-all text-zinc-400 hover:text-neon-green select-none flex items-center gap-1.5 w-full md:w-auto justify-center md:justify-start">
             <span class="nav-indicator w-1.5 h-1.5 bg-neon-green rounded-full hidden"></span>
-            <span>[06_CONTACT]</span>
+            <span>[06_CONTACT // Uplink & Socials]</span>
           </a>
         </nav>
 
         <!-- Taskbar Controls -->
         <div id="taskbar-controls" class="hidden md:flex flex-row items-center justify-end w-full md:w-auto gap-3.5 border-t border-white/5 md:border-none pt-2.5 md:pt-0">
+          <button
+            id="reboot-os-btn"
+            onclick="rebootOS()"
+            class="p-1 px-2.5 border border-neon-magenta/20 hover:border-neon-magenta bg-cyber-dark/80 rounded flex items-center justify-center gap-1.5 cursor-pointer hover:bg-neon-magenta/10 text-neon-magenta transition-all group"
+            title="Reboot System Terminal"
+          >
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-neon-magenta transition-transform duration-500 group-hover:rotate-180"></i>
+            <span class="text-[10px] font-mono text-neon-magenta">REBOOT</span>
+          </button>
+
           <button
             id="mute-toggle-btn"
             onclick="toggleAudioMute()"
@@ -226,45 +236,109 @@
               <div class="flex flex-col gap-2">
                 <h3 class="text-2xl font-terminal font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <i data-lucide="network" class="w-6 h-6 text-neon-cyan"></i>
-                  VISION://DREAM_INJECTOR
+                  VISION://DREAM_INJECTOR // Community Survey & Feedback
                 </h3>
                 <p class="text-xs font-sans text-zinc-300">
-                  Set up your custom dream checkpoints! Empower yourself by documenting academic learning, gaming schedules, teaching milestones, and spooky content creations with standard local persistence logs.
+                  Join our frequency! Submit your email and suggestions for <strong>anime</strong>, <strong>horror</strong>, <strong>music</strong>, or <strong>dream checkpoints</strong>. Every submission is logged securely inside our MongoDB database.
                 </p>
               </div>
 
               <form onsubmit="injectDream(event)" class="border border-white/5 bg-cyber-black/80 rounded-lg p-4 font-mono text-xs flex flex-col gap-4">
-                <div class="flex flex-col gap-1.5">
-                  <label class="text-neon-cyan uppercase font-bold tracking-wider">Dream Checkpoint Detail:</label>
-                  <input
-                    id="dream-title-input"
-                    type="text"
-                    placeholder="e.g., Launch a gothic mecha web dev boot camp on stream"
-                    class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-cyan text-xs font-mono text-zinc-200"
-                    required
-                  />
-                </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-cyan uppercase font-bold tracking-wider">Your Node Email:</label>
+                    <input
+                      id="dream-email-input"
+                      type="email"
+                      value="tashenea.young12@gmail.com"
+                      placeholder="e.g., computer.ghost@cyberhive.net"
+                      class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-cyan text-xs font-mono text-zinc-200"
+                      required
+                    />
+                  </div>
+
                   <div class="flex flex-col gap-1.5">
                     <label class="text-neon-magenta uppercase font-bold tracking-wider">Protocol Category:</label>
                     <select
                       id="dream-cat-select"
                       class="w-full bg-cyber-dark border border-white/10 rounded p-2 outline-none focus:border-neon-magenta text-zinc-300 text-xs font-mono"
                     >
-                      <option value="TEACHING">🎓 TEACHING & MENTORING</option>
-                      <option value="GAMING">🎮 GAMING & STREAMING</option>
-                      <option value="SPOOKY">🖤 SPOOKY CONTENT</option>
+                      <option value="HORROR">💀 Horror Content Recommendation</option>
+                      <option value="ANIME">🍿 Anime/ Manga Suggestions</option>
+                      <option value="MUSIC">🎵 Music Suggestions</option>
+                      <option value="ENCOURAGEMENT">🤝 Words of Encouragement</option>
+                      <option value="PRAYER">🙏 Prayer Request</option>
                     </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Subscribe Newsletter Toggle Button Yes/No -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-cyan uppercase font-bold tracking-wider text-[10px]">Would you like to subscribe to the Email Newsletter?</label>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        id="toggle-subscribe-yes"
+                        onclick="setNewsletterSubscribe(true)"
+                        class="flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono"
+                      >
+                        YES
+                      </button>
+                      <button
+                        type="button"
+                        id="toggle-subscribe-no"
+                        onclick="setNewsletterSubscribe(false)"
+                        class="flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300"
+                      >
+                        NO
+                      </button>
+                    </div>
+                    <input type="hidden" id="dream-subscribe-input" value="true" />
+                  </div>
+
+                  <!-- Post Anonymously Toggle Button Yes/No -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-cyan uppercase font-bold tracking-wider text-[10px]">The option to post anonymously:</label>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        id="toggle-anon-yes"
+                        onclick="setAnonymousPost(true)"
+                        class="flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300"
+                      >
+                        YES
+                      </button>
+                      <button
+                        type="button"
+                        id="toggle-anon-no"
+                        onclick="setAnonymousPost(false)"
+                        class="flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono"
+                      >
+                        NO
+                      </button>
+                    </div>
+                    <input type="hidden" id="dream-anon-input" value="false" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-neon-cyan uppercase font-bold tracking-wider">Suggestion / Checkpoint Title:</label>
+                    <input
+                      id="dream-title-input"
+                      type="text"
+                      placeholder="e.g., Serial Experiments Lain / Silent Hill 2 / Bauhaus"
+                      class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-cyan text-xs font-mono text-zinc-200"
+                      required
+                    />
                   </div>
 
                   <div class="flex flex-col gap-1.5">
-                    <label class="text-neon-yellow uppercase font-bold tracking-wider">Target Realization Year:</label>
+                    <label class="text-neon-yellow uppercase font-bold tracking-wider">Target Year / Release Era:</label>
                     <input
                       id="dream-year-input"
-                      type="number"
-                      min="2026"
-                      max="2040"
+                      type="text"
                       value="2026"
                       class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-yellow text-xs font-mono text-zinc-300"
                       required
@@ -272,12 +346,23 @@
                   </div>
                 </div>
 
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-neon-cyan uppercase font-bold tracking-wider">Detailed Description / Transmission Payload:</label>
+                  <textarea
+                    id="dream-desc-input"
+                    rows="2"
+                    placeholder="Provide details about your anime recommendation, music suggestion, or dream checkpoint..."
+                    class="w-full bg-cyber-dark px-3.5 py-2 border border-white/10 rounded outline-none focus:border-neon-cyan text-xs font-mono text-zinc-200 resize-none"
+                    required
+                  ></textarea>
+                </div>
+
                 <button
                   type="submit"
                   class="mt-2 py-3 bg-neon-cyan hover:bg-neon-cyan/25 hover:text-neon-cyan border border-neon-cyan text-cyber-black font-terminal font-bold uppercase tracking-widest rounded cursor-pointer transition-all flex items-center justify-center gap-2"
                 >
                   <i data-lucide="plus" class="w-4 h-4"></i>
-                  INJECT DREAM PROTOCOL
+                  INJECT PROTOCOL & TRANSMIT
                 </button>
               </form>
 

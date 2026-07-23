@@ -306,6 +306,14 @@ function toggleCRT() {
   }
 }
 
+function rebootOS() {
+  playCyberSound("glitch");
+  try {
+    sessionStorage.removeItem("bee_net_booted");
+  } catch (_) {}
+  window.location.href = "index.html";
+}
+
 // Sound helpers for hovering
 function setupHovers() {
   document.querySelectorAll("[data-cyber-hover]").forEach((el) => {
@@ -442,7 +450,7 @@ function initializePageComponents() {
     initArchive();
   }
   if (document.getElementById("dreams-grid-container")) {
-    renderDreams();
+    fetchDreams();
   }
   if (document.getElementById("transmissions-list-container")) {
     renderTransmissions();
@@ -542,7 +550,118 @@ function selectHobby(key) {
   `;
 }
 
-// Dreams management
+// Dreams & Suggestions management
+function obfuscateEmail(email) {
+  if (!email) return "ANONYMOUS_NODE";
+  if (email === "ANONYMOUS_NODE" || email.includes("ANONYMOUS")) {
+    return "NODE://ANONYMOUS_GHOST";
+  }
+  const parts = email.split("@");
+  if (parts.length < 2) return "NODE_ANONYMOUS";
+  const name = parts[0];
+  const domain = parts[1];
+  const obfName = name.length > 2 ? name.substring(0, 2) + "***" : name + "***";
+  return `NODE://${obfName}@${domain}`;
+}
+
+function fetchDreams() {
+  fetch("/api/dreams/all")
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.success && Array.isArray(data.dreams)) {
+        state.dreams = data.dreams;
+        renderDreams();
+      }
+    })
+    .catch(err => {
+      console.error("Failed to fetch suggestions:", err);
+      renderDreams();
+    });
+}
+
+function setNewsletterSubscribe(val) {
+  const subscribeInput = document.getElementById("dream-subscribe-input");
+  if (subscribeInput) {
+    subscribeInput.value = val ? "true" : "false";
+  }
+  
+  const yesBtn = document.getElementById("toggle-subscribe-yes");
+  const noBtn = document.getElementById("toggle-subscribe-no");
+  
+  if (yesBtn && noBtn) {
+    if (val) {
+      yesBtn.className = "flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono";
+      noBtn.className = "flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300";
+    } else {
+      yesBtn.className = "flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300";
+      noBtn.className = "flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono";
+    }
+  }
+  playCyberSound("click");
+}
+
+function setAnonymousPost(val) {
+  const anonInput = document.getElementById("dream-anon-input");
+  if (anonInput) {
+    anonInput.value = val ? "true" : "false";
+  }
+  
+  const yesBtn = document.getElementById("toggle-anon-yes");
+  const noBtn = document.getElementById("toggle-anon-no");
+  
+  if (yesBtn && noBtn) {
+    if (val) {
+      yesBtn.className = "flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono";
+      noBtn.className = "flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300";
+    } else {
+      yesBtn.className = "flex-1 py-1.5 border border-white/10 text-zinc-500 font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono hover:text-zinc-300";
+      noBtn.className = "flex-1 py-1.5 border border-neon-cyan bg-neon-cyan/20 text-neon-cyan font-bold rounded text-center transition-all cursor-pointer text-[10px] tracking-wider font-mono";
+    }
+  }
+  playCyberSound("click");
+}
+
+async function fetchLocationString() {
+  let locationStr = "";
+  
+  // Try IP-based geolocation for fast, silent, highly reliable matching
+  try {
+    const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(2000) });
+    const ipGeo = await res.json();
+    if (ipGeo && ipGeo.city && ipGeo.country_name) {
+      locationStr = `${ipGeo.city}, ${ipGeo.country_code}`;
+    }
+  } catch (err) {
+    // Fail silently to next method
+  }
+
+  // Fallback to browser HTML5 geolocation if permission is already given
+  if (!locationStr && navigator.geolocation) {
+    try {
+      const coords = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos.coords),
+          (err) => reject(err),
+          { timeout: 1200 }
+        );
+      });
+      locationStr = `GPS [${coords.latitude.toFixed(2)}, ${coords.longitude.toFixed(2)}]`;
+    } catch (_) {}
+  }
+
+  // Solid, infallible fallback to device timezone + browser locale
+  if (!locationStr) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+      locationStr = `${tz.split("/").pop().replace("_", " ")}`;
+    } catch (_) {
+      locationStr = "CYBER_GRID_COORDS";
+    }
+  }
+
+  return locationStr;
+}
+
 function renderDreams() {
   const container = document.getElementById("dreams-grid-container");
   if (!container) return;
@@ -550,34 +669,70 @@ function renderDreams() {
 
   state.dreams.forEach((dream) => {
     let catClass = "bg-neon-yellow/10 border-neon-yellow/35 text-neon-yellow";
-    if (dream.category === "TEACHING") catClass = "bg-neon-purple/10 border-neon-purple/35 text-neon-purple";
-    if (dream.category === "GAMING") catClass = "bg-neon-cyan/10 border-neon-cyan/35 text-neon-cyan";
-    if (dream.category === "SPOOKY") catClass = "bg-neon-magenta/10 border-neon-magenta/35 text-neon-magenta";
+    let catLabel = dream.category;
+
+    if (dream.category === "ANIME") {
+      catClass = "bg-neon-cyan/10 border-neon-cyan/35 text-neon-cyan";
+      catLabel = "🍿 ANIME SUGGESTION";
+    } else if (dream.category === "HORROR") {
+      catClass = "bg-neon-magenta/10 border-neon-magenta/35 text-neon-magenta";
+      catLabel = "💀 HORROR RECOMMENDATION";
+    } else if (dream.category === "MUSIC") {
+      catClass = "bg-neon-green/10 border-neon-green/35 text-neon-green";
+      catLabel = "🎵 MUSIC SUGGESTION";
+    } else if (dream.category === "ENCOURAGEMENT") {
+      catClass = "bg-neon-purple/10 border-neon-purple/35 text-neon-purple";
+      catLabel = "🤝 ENCOURAGEMENT";
+    } else if (dream.category === "PRAYER") {
+      catClass = "bg-neon-red/10 border-neon-red/35 text-neon-red";
+      catLabel = "🙏 PRAYER REQUEST";
+    }
 
     const div = document.createElement("div");
     div.className = "border border-white/5 hover:border-white/15 bg-black/40 rounded-lg p-4 flex flex-col justify-between relative group transition-all";
+    
+    const obfNode = obfuscateEmail(dream.email);
+    const descHTML = dream.description 
+      ? `<p class="text-[11px] font-sans text-zinc-400 mt-1.5 leading-relaxed italic border-l border-white/10 pl-2">${dream.description}</p>`
+      : "";
+
+    const locationHTML = dream.location 
+      ? `<span class="flex items-center gap-1 text-[9px] text-zinc-500 font-mono"><i data-lucide="map-pin" class="w-2.5 h-2.5 text-neon-yellow"></i> ${dream.location}</span>`
+      : `<span class="flex items-center gap-1 text-[9px] text-zinc-500 font-mono"><i data-lucide="map-pin" class="w-2.5 h-2.5 text-zinc-600"></i> CYBER_GRID</span>`;
+
+    const dateStr = dream.timestamp ? new Date(dream.timestamp).toLocaleDateString() : "RECENT_SEC";
+    const timestampHTML = `<span class="text-[9px] text-zinc-600 font-mono">${dateStr}</span>`;
+
     div.innerHTML = `
       <div class="flex flex-col gap-2">
         <div class="flex justify-between items-center text-[9px] font-mono">
           <span class="px-2 py-0.5 border rounded-sm font-bold ${catClass}">
-            ${dream.category}
+            ${catLabel}
           </span>
-          <span class="text-zinc-600 font-bold">EST. ${dream.targetYear}</span>
+          <span class="text-zinc-600 font-bold">${dream.targetYear || '2026'}</span>
         </div>
-        <p class="font-sans text-xs text-zinc-200 font-medium leading-relaxed">
-          ${dream.title}
-        </p>
+        <div>
+          <p class="font-sans text-xs text-zinc-200 font-medium leading-relaxed">
+            ${dream.title}
+          </p>
+          ${descHTML}
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-1.5 border-t border-white/5 pt-1.5 mt-1">
+          ${locationHTML}
+          ${timestampHTML}
+        </div>
       </div>
 
       <div class="flex justify-between items-center border-t border-white/5 pt-3 mt-3 text-[10px] font-mono">
-        <span class="flex items-center gap-1 ${dream.status === 'ACTIVE_ROUTE' ? 'text-neon-cyan animate-pulse' : 'text-neon-green'}">
-          ● ${dream.status}
+        <span class="text-zinc-500 font-bold text-[9px] flex items-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3 text-neon-cyan"></i>
+          ${obfNode}
         </span>
         
         <button
           onclick="deleteDream('${dream.id}', event)"
           class="opacity-0 group-hover:opacity-100 p-1 hover:bg-neon-magenta/20 hover:text-neon-magenta text-zinc-500 rounded transition-all cursor-pointer"
-          title="Abort mission dream protocol"
+          title="Abort mission suggestion"
         >
           <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
         </button>
@@ -588,31 +743,130 @@ function renderDreams() {
   lucide.createIcons();
 }
 
-function injectDream(e) {
+async function injectDream(e) {
   e.preventDefault();
+  const emailInput = document.getElementById("dream-email-input");
   const titleInput = document.getElementById("dream-title-input");
   const catSelect = document.getElementById("dream-cat-select");
-  const yearInput = document.getElementById("dream-year-input");
+  const descInput = document.getElementById("dream-desc-input");
+  const subscribeInput = document.getElementById("dream-subscribe-input");
 
-  const title = titleInput.value.trim();
-  if (!title) {
+  const email = emailInput ? emailInput.value.trim() : "";
+  const title = titleInput ? titleInput.value.trim() : "";
+  const category = catSelect ? catSelect.value : "ANIME";
+  const description = descInput ? descInput.value.trim() : "";
+  const newsletterConsent = subscribeInput ? subscribeInput.value === "true" : true;
+
+  // Initialize status message container in form
+  let statusDiv = document.getElementById("dream-form-status");
+  if (!statusDiv) {
+    statusDiv = document.createElement("div");
+    statusDiv.id = "dream-form-status";
+    statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded transition-all";
+    const form = e.target;
+    form.insertBefore(statusDiv, form.querySelector("button[type='submit']"));
+  }
+  statusDiv.className = "hidden"; // Reset
+
+  // 1. Client-side Validations
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!email || !emailRegex.test(email)) {
     playCyberSound("glitch");
+    statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded border border-neon-magenta/30 bg-neon-magenta/10 text-neon-magenta mt-1";
+    statusDiv.innerHTML = `<span>❌ INVALID NODE EMAIL. PLEASE ENTER A VALID EMAIL ADDRESS.</span>`;
+    statusDiv.classList.remove("hidden");
     return;
   }
 
-  playCyberSound("success");
-  const newDream = {
-    id: `dream_${Date.now()}`,
-    category: catSelect.value,
-    title: title,
-    targetYear: yearInput.value,
-    status: "INITIALIZING"
-  };
+  if (!title) {
+    playCyberSound("glitch");
+    statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded border border-neon-magenta/30 bg-neon-magenta/10 text-neon-magenta mt-1";
+    statusDiv.innerHTML = `<span>❌ TRANSMISSION TITLE IS REQUIRED.</span>`;
+    statusDiv.classList.remove("hidden");
+    return;
+  }
 
-  state.dreams.push(newDream);
-  savePersistentData();
-  renderDreams();
-  titleInput.value = "";
+  if (!description) {
+    playCyberSound("glitch");
+    statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded border border-neon-magenta/30 bg-neon-magenta/10 text-neon-magenta mt-1";
+    statusDiv.innerHTML = `<span>❌ DETAILED TRANSMISSION PAYLOAD IS REQUIRED.</span>`;
+    statusDiv.classList.remove("hidden");
+    return;
+  }
+
+  playCyberSound("click");
+
+  const submitBtn = e.target.querySelector("button[type='submit']");
+  const originalBtnHTML = submitBtn ? submitBtn.innerHTML : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <div class="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-current"></div>
+      <span>UPLINK_BROADCAST_IN_PROGRESS...</span>
+    `;
+  }
+
+  // 2. Fetch submit to Mongoose backend survey endpoint
+  fetch("/api/website-survey", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, category, title, description, newsletterConsent })
+  })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Database server transmission error.");
+      }
+      return data;
+    })
+    .then(data => {
+      playCyberSound("success");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+      }
+
+      // Display success feedback
+      statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded border border-neon-green/30 bg-neon-green/10 text-neon-green mt-1";
+      statusDiv.innerHTML = `<span>✔ TRANSMISSION RECEIVED! SAVE FREQUENCY LOGGED TO ATLAS DATABASE (websiteSurvey).</span>`;
+      statusDiv.classList.remove("hidden");
+
+      // Optionally insert into live feedback logs so it appears on grid
+      if (data && data.data) {
+        const localDoc = {
+          id: data.data._id || `survey_${Date.now()}`,
+          category: data.data.category,
+          title: data.data.title,
+          targetYear: "2026",
+          description: data.data.description,
+          email: data.data.email,
+          timestamp: data.data.createdAt || new Date().toISOString()
+        };
+        state.dreams.unshift(localDoc);
+        renderDreams();
+      }
+
+      // 6. Clear form after successful submission
+      if (titleInput) titleInput.value = "";
+      if (descInput) descInput.value = "";
+
+      // Hide success message after several seconds
+      setTimeout(() => {
+        statusDiv.className = "hidden";
+        statusDiv.innerHTML = "";
+      }, 7000);
+    })
+    .catch(err => {
+      console.error(err);
+      playCyberSound("glitch");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+      }
+      statusDiv.className = "text-center font-mono text-[11px] font-bold p-2.5 rounded border border-neon-magenta/30 bg-neon-magenta/10 text-neon-magenta mt-1";
+      statusDiv.innerHTML = `<span>❌ TRANSMISSION FAULT: ${err.message || "COULD NOT ESTABLISH SECURE TERMINAL UPLINK"}</span>`;
+      statusDiv.classList.remove("hidden");
+    });
 }
 
 function deleteDream(id, e) {
@@ -841,36 +1095,83 @@ function setContactMode(mode) {
 
   const msgTab = document.getElementById("tab-msg");
   const coffeeTab = document.getElementById("tab-coffee");
+  const newsletterTab = document.getElementById("tab-newsletter");
   const infoEl = document.getElementById("contact-info-text");
   const configGrid = document.getElementById("coffee-fuel-grid");
+  const categoryGroup = document.getElementById("contact-category-group");
+  const messageGroup = document.getElementById("contact-message-group");
+  const msgInput = document.getElementById("message-input");
+  const submitBtn = document.getElementById("submit-btn");
+
+  if (msgInput) {
+    msgInput.required = (mode !== "NEWSLETTER");
+  }
 
   if (mode === "MESSAGE") {
-    msgTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-cyan text-neon-cyan bg-neon-cyan/10 transition-all";
-    coffeeTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all";
-    infoEl.textContent = "Draft generic transmissions, ask queries, or propose contract collaborations directly. This transaction registers instantly to the local buffer index.";
-    configGrid.classList.add("hidden");
-    document.getElementById("message-label").textContent = "TRANSMISSION://RAW_MESSAGE_PAYLOAD";
-    document.getElementById("message-input").placeholder = "Draft your digital package protocols here...";
-    document.getElementById("submit-btn").innerHTML = `
-      <i data-lucide="send" class="w-4 h-4"></i>
-      <span>Send Signal / Transmit Message</span>
-    `;
-  } else {
-    msgTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all";
-    coffeeTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-yellow text-neon-yellow bg-neon-yellow/10 border-glow-yellow transition-all";
-    infoEl.innerHTML = `
-      <span class="font-bold text-neon-yellow flex items-center gap-1">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-        COFFEE FUEL RECHARGE INITIATED
-      </span>
-      <span>
-        Fuel Tashenea's research and development schedule. Select a custom resource tier to inject dynamic caffeine cells. Includes secure local ledger persistence.
-      </span>
-    `;
-    configGrid.classList.remove("hidden");
-    document.getElementById("message-label").textContent = "RECHARGE_PROTOCOL://SUPPORT_MESSAGE";
-    document.getElementById("message-input").placeholder = "Write a coffee greeting or word of encouragement...";
+    if (msgTab) msgTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-cyan text-neon-cyan bg-neon-cyan/10 transition-all";
+    if (coffeeTab) coffeeTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all flex items-center gap-2";
+    if (newsletterTab) newsletterTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all flex items-center gap-2";
+    if (infoEl) infoEl.textContent = "Draft generic transmissions, ask queries, or propose contract collaborations directly. This transaction registers instantly to the local buffer index.";
+    if (configGrid) configGrid.classList.add("hidden");
+    if (categoryGroup) categoryGroup.classList.remove("hidden");
+    if (messageGroup) messageGroup.classList.remove("hidden");
+    
+    const msgLabel = document.getElementById("message-label");
+    if (msgLabel) msgLabel.textContent = "TRANSMISSION://RAW_MESSAGE_PAYLOAD";
+    if (msgInput) msgInput.placeholder = "Draft your digital package protocols here...";
+    if (submitBtn) {
+      submitBtn.innerHTML = `
+        <i data-lucide="send" class="w-4 h-4"></i>
+        <span>Send Signal / Transmit Message</span>
+      `;
+    }
+  } else if (mode === "COFFEE") {
+    if (msgTab) msgTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all";
+    if (coffeeTab) coffeeTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-yellow text-neon-yellow bg-neon-yellow/10 border-glow-yellow transition-all flex items-center gap-2";
+    if (newsletterTab) newsletterTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all flex items-center gap-2";
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <span class="font-bold text-neon-yellow flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          COFFEE FUEL RECHARGE INITIATED
+        </span>
+        <span>
+          Fuel Tashenea's research and development schedule. Select a custom resource tier to inject dynamic caffeine cells. Includes secure local ledger persistence.
+        </span>
+      `;
+    }
+    if (configGrid) configGrid.classList.remove("hidden");
+    if (categoryGroup) categoryGroup.classList.remove("hidden");
+    if (messageGroup) messageGroup.classList.remove("hidden");
+    
+    const msgLabel = document.getElementById("message-label");
+    if (msgLabel) msgLabel.textContent = "RECHARGE_PROTOCOL://SUPPORT_MESSAGE";
+    if (msgInput) msgInput.placeholder = "Write a coffee greeting or word of encouragement...";
     updateSubmitBtnCoffee();
+  } else if (mode === "NEWSLETTER") {
+    if (msgTab) msgTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all";
+    if (coffeeTab) coffeeTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-transparent text-zinc-500 hover:text-zinc-300 transition-all flex items-center gap-2";
+    if (newsletterTab) newsletterTab.className = "px-4 py-2 text-xs font-mono font-bold uppercase rounded tracking-wider cursor-pointer border border-neon-cyan text-neon-cyan bg-neon-cyan/10 transition-all flex items-center gap-2";
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <span class="font-bold text-neon-cyan flex items-center gap-1">
+          <i data-lucide="mail" class="w-3.5 h-3.5 animate-pulse"></i>
+          NEWSLETTER_GATEWAY://SUBSCRIBE_UPLINK
+        </span>
+        <span>
+          Join our exclusive Cyber-Hive frequency. Get career-acceleration tactics, Christian tech mentoring, freelance strategies, and building telemetry updates delivered directly to your node.
+        </span>
+      `;
+    }
+    if (configGrid) configGrid.classList.add("hidden");
+    if (categoryGroup) categoryGroup.classList.add("hidden");
+    if (messageGroup) messageGroup.classList.add("hidden");
+    if (submitBtn) {
+      submitBtn.innerHTML = `
+        <i data-lucide="mail" class="w-4 h-4 text-neon-cyan"></i>
+        <span>Subscribe to Newsletter / Establish Uplink</span>
+      `;
+    }
   }
   lucide.createIcons();
 }
@@ -919,6 +1220,115 @@ function handleTransmit(e) {
   const email = document.getElementById("contact-email").value.trim();
   const category = document.getElementById("contact-category").value;
   const message = document.getElementById("message-input").value.trim();
+
+  if (contactMode === "NEWSLETTER") {
+    if (!email) {
+      playCyberSound("glitch");
+      return;
+    }
+
+    playCyberSound("click");
+    
+    // Show sending log
+    const tunnelLogs = document.getElementById("tunnel-logs-window");
+    const transmissionLog = document.createElement("div");
+    transmissionLog.className = "text-neon-cyan font-bold animate-pulse mt-1 flex items-center gap-1";
+    transmissionLog.innerHTML = `<span>⌛ HANDSHAKE://INITIATING_SECURE_TUNNEL...</span>`;
+    if (tunnelLogs) {
+      tunnelLogs.appendChild(transmissionLog);
+      tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
+    }
+
+    // Submit button loader
+    const submitBtn = document.getElementById("submit-btn");
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <div class="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-current"></div>
+        <span>MONGO_DB://CONNECTING_SECURE_TUNNEL...</span>
+      `;
+    }
+
+    fetch("/api/newsletter/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    })
+      .then(res => res.json())
+      .then(data => {
+        playCyberSound("success");
+        if (submitBtn) submitBtn.disabled = false;
+        transmissionLog.remove();
+
+        const successLog = document.createElement("div");
+        successLog.className = "text-neon-green font-bold mt-1 flex items-center gap-1";
+        successLog.innerHTML = `<span>✔ ${data.message} [${data.database}]</span>`;
+        if (tunnelLogs) {
+          tunnelLogs.appendChild(successLog);
+          tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
+        }
+
+        // Save payload to local memory list to visualize in ledger
+        const now = new Date();
+        const payload = {
+          name: name || "Anonymous Node",
+          email: email,
+          category: "Newsletter Signup",
+          message: `Established uplink connection. Status: subscribed. [DB: ${data.database}]`,
+          timestamp: now.toISOString().replace("T", " ").substring(0, 19),
+          coffeeAmount: null
+        };
+
+        state.transmissions.unshift(payload);
+        state.transmissions = state.transmissions.slice(0, 5); // Max 5 logs
+        savePersistentData();
+        renderTransmissions();
+
+        // Reset fields
+        document.getElementById("contact-name").value = "";
+        document.getElementById("contact-email").value = "";
+
+        setTimeout(() => {
+          successLog.remove();
+        }, 6000);
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `
+            <i data-lucide="mail" class="w-4 h-4 text-neon-cyan"></i>
+            <span>Subscribe to Newsletter / Establish Uplink</span>
+          `;
+        }
+        lucide.createIcons();
+      })
+      .catch(err => {
+        console.error(err);
+        playCyberSound("glitch");
+        if (submitBtn) submitBtn.disabled = false;
+        transmissionLog.remove();
+
+        const errorLog = document.createElement("div");
+        errorLog.className = "text-neon-red font-bold mt-1 flex items-center gap-1";
+        errorLog.innerHTML = `<span>❌ UPLINK_FAILURE: CANNOT_WRITE_TO_MONGO_DB</span>`;
+        if (tunnelLogs) {
+          tunnelLogs.appendChild(errorLog);
+          tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
+        }
+
+        setTimeout(() => {
+          errorLog.remove();
+        }, 5000);
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `
+            <i data-lucide="mail" class="w-4 h-4 text-neon-cyan"></i>
+            <span>Subscribe to Newsletter / Establish Uplink</span>
+          `;
+        }
+        lucide.createIcons();
+      });
+
+    return;
+  }
 
   if (!name || !email || !message) {
     playCyberSound("glitch");
@@ -1176,6 +1586,26 @@ document.addEventListener("DOMContentLoaded", () => {
   if (bootScreen) {
     let booted = false;
     try {
+      // If the page is reloaded, or we navigate directly without coming from a subpage,
+      // reset the boot state so the loading screen is always shown first.
+      let isReload = false;
+      const navs = performance.getEntriesByType("navigation");
+      if (navs && navs.length > 0) {
+        isReload = navs[0].type === "reload";
+      }
+
+      const referrer = document.referrer || "";
+      const isInternalNav = referrer.includes("dossier.html") || 
+                            referrer.includes("vault.html") || 
+                            referrer.includes("subculture.html") || 
+                            referrer.includes("pipelines.html") || 
+                            referrer.includes("contact.html") ||
+                            referrer.includes("index.html");
+
+      if (isReload || !isInternalNav) {
+        sessionStorage.removeItem("bee_net_booted");
+      }
+
       booted = sessionStorage.getItem("bee_net_booted") === "true";
     } catch (_) {}
 
@@ -1200,6 +1630,7 @@ document.addEventListener("DOMContentLoaded", () => {
 window.toggleAudioMute = toggleAudioMute;
 window.playCyberSound = playCyberSound;
 window.toggleCRT = toggleCRT;
+window.rebootOS = rebootOS;
 window.handleAccess = handleAccess;
 window.selectHobby = selectHobby;
 window.deleteDream = deleteDream;
@@ -1215,4 +1646,6 @@ window.switchProfileImageSource = switchProfileImageSource;
 window.replayCanvaVideo = replayCanvaVideo;
 window.toggleMobileMenu = toggleMobileMenu;
 window.closeMobileMenu = closeMobileMenu;
+window.setNewsletterSubscribe = setNewsletterSubscribe;
+window.setAnonymousPost = setAnonymousPost;
 
