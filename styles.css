@@ -166,3 +166,26 @@ body {
 .active-nav .nav-indicator {
   display: inline-block !important;
 }
+
+/* Keyframes and classes for Hack Modal & Glitch FX */
+@keyframes scaleIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes glitchHeavy {
+  0% { transform: translate(0); filter: hue-rotate(0deg); }
+  20% { transform: translate(-3px, 3px); filter: hue-rotate(90deg); }
+  40% { transform: translate(3px, -2px); filter: hue-rotate(180deg); }
+  60% { transform: translate(-2px, -3px); filter: hue-rotate(270deg); }
+  80% { transform: translate(2px, 2px); filter: hue-rotate(360deg); }
+  100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+.animate-glitch-heavy {
+  animation: glitchHeavy 0.4s ease-in-out;
+}

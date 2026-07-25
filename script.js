@@ -442,6 +442,7 @@ function initializePageComponents() {
   lucide.createIcons();
   startClock();
   loadPersistentData();
+  updateHackerStatusUI();
   
   if (document.getElementById("profile-portrait-img") || document.getElementById("profile-avatar-img")) {
     applyImageSource();
@@ -1492,6 +1493,375 @@ function replayCanvaVideo() {
   }
 }
 
+// ==========================================
+// INTERACTIVE "HACK THE SYSTEM" ENGINE
+// ==========================================
+
+let matrixInterval = null;
+let matrixCanvas = null;
+let matrixCtx = null;
+let isMatrixActive = false;
+
+function toggleMatrixRain() {
+  playCyberSound("beep");
+  isMatrixActive = !isMatrixActive;
+  const canvas = document.getElementById("matrix-canvas");
+  const toggleBtnText = document.getElementById("matrix-toggle-status");
+  
+  if (!canvas) return;
+
+  if (isMatrixActive) {
+    canvas.classList.remove("hidden");
+    if (toggleBtnText) toggleBtnText.textContent = "MATRIX: ACTIVE";
+    startMatrixRain(canvas);
+    appendTerminalLog("system", ">>> SCRIPTURE & AFFIRMATION MATRIX RAIN ACTIVATED [SCRIPTURES & AFFIRMATIONS]");
+  } else {
+    canvas.classList.add("hidden");
+    if (toggleBtnText) toggleBtnText.textContent = "MATRIX: READY";
+    stopMatrixRain();
+    appendTerminalLog("system", ">>> SCRIPTURE MATRIX RAIN DEACTIVATED.");
+  }
+}
+
+function startMatrixRain(canvas) {
+  matrixCanvas = canvas;
+  matrixCtx = canvas.getContext("2d");
+  
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+
+  const scripturesAndAffirmations = [
+    "✝ PHILIPPIANS 4:13 // I CAN DO ALL THINGS THROUGH CHRIST WHO STRENGTHENS ME ",
+    "✨ PSALM 139:14 // I AM FEARFULLY AND WONDERFULLY MADE ",
+    "👑 PSALM 46:5 // GOD IS WITHIN HER SHE WILL NOT FALL ",
+    "🛡️ PSALM 27:1 // THE LORD IS MY LIGHT AND MY SALVATION WHOM SHALL I FEAR ",
+    "💡 MATTHEW 5:14 // YOU ARE THE LIGHT OF THE WORLD ",
+    "🔥 PROVERBS 3:5 // TRUST IN THE LORD WITH ALL YOUR HEART ",
+    "⚡ JOSHUA 1:9 // BE STRONG AND COURAGEOUS DO NOT BE AFRAID ",
+    "🕊️ JEREMIAH 29:11 // PLANS TO PROSPER YOU AND GIVE YOU HOPE AND A FUTURE ",
+    "🖤 2 CORINTHIANS 5:7 // WALK BY FAITH NOT BY SIGHT ",
+    "🐝 FAITH & CODE // I BUILD MY DIGITAL KINGDOM WITH FAITH AND PURPOSE ",
+    "💻 DIVINE INTELLECT // CREATED WITH PURPOSE POWER WISDOM AND INTELLECT ",
+    "✨ SHINE YOUR LIGHT // GODS GRACE IS MY ULTIMATE POWER SOURCE ",
+    "🚀 ROMANS 8:31 // IF GOD IS FOR US WHO CAN BE AGAINST US ",
+    "🌟 ISAIAH 40:31 // THEY WHO WAIT FOR THE LORD SHALL RENEW THEIR STRENGTH ",
+    "🖤 CYBER-HIVE // BLESSED DRIVEN AND UNSHAKABLE "
+  ];
+
+  const fontSize = 15;
+  const columnsCount = Math.floor(canvas.width / fontSize);
+
+  // Each column maintains state
+  const columns = [];
+  for (let i = 0; i < columnsCount; i++) {
+    columns.push({
+      phraseIdx: Math.floor(Math.random() * scripturesAndAffirmations.length),
+      charIdx: Math.floor(Math.random() * 60),
+      y: Math.random() * -100,
+      speed: 1 + Math.random() * 0.8,
+      colorType: Math.floor(Math.random() * 4)
+    });
+  }
+
+  if (matrixInterval) clearInterval(matrixInterval);
+
+  matrixInterval = setInterval(() => {
+    // Fade overlay
+    matrixCtx.fillStyle = "rgba(3, 3, 6, 0.08)";
+    matrixCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+    matrixCtx.font = "bold " + fontSize + "px 'Share Tech Mono', monospace";
+
+    columns.forEach((col, i) => {
+      const phrase = scripturesAndAffirmations[col.phraseIdx];
+      const char = phrase[col.charIdx % phrase.length];
+      const x = i * fontSize;
+      const y = col.y * fontSize;
+
+      // Color selection
+      if (col.charIdx % phrase.length === 0 || Math.random() > 0.96) {
+        matrixCtx.fillStyle = "#ffffff"; // Bright leading flash
+      } else if (col.colorType === 0) {
+        matrixCtx.fillStyle = "#fefe00"; // Neon yellow
+      } else if (col.colorType === 1) {
+        matrixCtx.fillStyle = "#00f0ff"; // Neon cyan
+      } else if (col.colorType === 2) {
+        matrixCtx.fillStyle = "#ff007f"; // Neon magenta
+      } else {
+        matrixCtx.fillStyle = "#39ff14"; // Neon green
+      }
+
+      matrixCtx.fillText(char, x, y);
+
+      col.y += col.speed;
+      col.charIdx++;
+
+      if (y > canvas.height && Math.random() > 0.95) {
+        col.y = 0;
+        col.phraseIdx = Math.floor(Math.random() * scripturesAndAffirmations.length);
+        col.charIdx = 0;
+        col.speed = 1 + Math.random() * 0.8;
+        col.colorType = Math.floor(Math.random() * 4);
+      }
+    });
+  }, 33);
+}
+
+function stopMatrixRain() {
+  if (matrixInterval) {
+    clearInterval(matrixInterval);
+    matrixInterval = null;
+  }
+}
+
+function triggerScreenGlitch() {
+  playCyberSound("glitch");
+  const body = document.getElementById("main-body") || document.body;
+  body.classList.add("animate-glitch-heavy");
+  setTimeout(() => {
+    body.classList.remove("animate-glitch-heavy");
+  }, 500);
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function appendTerminalLog(type, text, isHtml = false) {
+  const logContainer = document.getElementById("terminal-output-logs");
+  if (!logContainer) return;
+
+  const line = document.createElement("div");
+  line.className = "font-mono text-xs my-1 transition-all animate-fadeIn";
+
+  if (type === "cmd") {
+    line.className += " text-neon-yellow flex items-start gap-1.5";
+    line.innerHTML = `<span class="text-neon-cyan select-none">[operative@tashibee_net]:~$</span> <span>${escapeHtml(text)}</span>`;
+  } else if (type === "system") {
+    line.className += " text-neon-cyan";
+    line.textContent = text;
+  } else if (type === "success") {
+    line.className += " text-neon-green font-bold";
+    line.textContent = text;
+  } else if (type === "error") {
+    line.className += " text-neon-magenta font-semibold";
+    line.textContent = text;
+  } else if (type === "raw") {
+    if (isHtml) {
+      line.innerHTML = text;
+    } else {
+      line.textContent = text;
+    }
+  }
+
+  logContainer.appendChild(line);
+  logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+function handleTerminalSubmit(e) {
+  if (e) e.preventDefault();
+  const inputEl = document.getElementById("terminal-cmd-input");
+  if (!inputEl) return;
+  const rawCmd = inputEl.value.trim();
+  if (!rawCmd) return;
+
+  appendTerminalLog("cmd", rawCmd);
+  inputEl.value = "";
+  
+  processHackerCommand(rawCmd.toLowerCase());
+}
+
+function processHackerCommand(cmd) {
+  playCyberSound("click");
+
+  switch (cmd) {
+    case "help":
+      appendTerminalLog("system", "================ AVAILABLE CYBER COMMANDS ================");
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>hack / override</span> - Bypass firewall and trigger Level 99 Overlord breach", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>matrix</span> - Toggle falling neon digital rain canvas", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>glitch</span> - Trigger a screen neural distortion waveform", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>whoami</span> - Display current operative status & session badges", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>projects / vault</span> - Output featured top CS archive projects", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>stack / skills</span> - Output tech stack and engineering pipelines", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>dossier / bio</span> - Read Tashenea's profile data", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>socials / links</span> - Display official YouTube, Instagram & TikTok channels", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>secret</span> - Unlock hidden easter egg control panel & theme customizer", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>clear</span> - Purge terminal buffer logs", true);
+      appendTerminalLog("system", "==========================================================");
+      break;
+
+    case "socials":
+    case "social":
+    case "links":
+    case "socialmedia":
+      appendTerminalLog("system", "🌐 OFFICIAL SOCIAL MEDIA UPLINKS:");
+      appendTerminalLog("raw", "📺 <span class='text-red-400 font-bold'>YouTube:</span> <a href='https://www.youtube.com/channel/UCQuthtMlIsvwBHZZy8U6wMw' target='_blank' rel='noopener noreferrer' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>channel/UCQuthtMlIsvwBHZZy8U6wMw</a>", true);
+      appendTerminalLog("raw", "📸 <span class='text-neon-magenta font-bold'>Instagram:</span> <a href='https://www.instagram.com/blkbabe.exe' target='_blank' rel='noopener noreferrer' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>blkbabe.exe</a>", true);
+      appendTerminalLog("raw", "🎵 <span class='text-neon-cyan font-bold'>TikTok:</span> <a href='https://www.tiktok.com/@Blkbabe.exe' target='_blank' rel='noopener noreferrer' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>@Blkbabe.exe</a>", true);
+      appendTerminalLog("raw", "👾 <span class='text-neon-purple font-bold'>Twitch:</span> <a href='https://www.twitch.tv/tashibee' target='_blank' rel='noopener noreferrer' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>tashibee</a>", true);
+      break;
+
+    case "hack":
+    case "override":
+    case "sudo hack":
+    case "hack the system":
+    case "hack_system":
+      triggerSystemHack();
+      break;
+
+    case "matrix":
+      toggleMatrixRain();
+      break;
+
+    case "glitch":
+      triggerScreenGlitch();
+      appendTerminalLog("system", "⚡ NEURAL WAVEFORM DISTORTION TRIGGERED.");
+      break;
+
+    case "whoami": {
+      const isOverlord = sessionStorage.getItem("bee_net_hacked") === "true";
+      if (isOverlord) {
+        appendTerminalLog("success", "👤 OPERATIVE IDENT: [LEVEL 99 CYBER OVERLORD]");
+        appendTerminalLog("system", "STATUS: SYSTEM OVERRIDDEN // UNRESTRICTED ACCESS GRANTED");
+      } else {
+        appendTerminalLog("system", "👤 OPERATIVE IDENT: [GUEST_VISITOR_NODE]");
+        appendTerminalLog("system", "STATUS: FIREWALL ACTIVE // TYPE 'hack' OR CLICK [1-CLICK OVERRIDE] TO ELEVATE PERMISSIONS");
+      }
+      break;
+    }
+
+    case "projects":
+    case "vault":
+      appendTerminalLog("system", "📦 FETCHING VAULT ARCHIVES...");
+      appendTerminalLog("raw", "<a href='vault.html' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>1. Cyberpunk Portfolio Terminal (HTML5/CSS3/JS Web Audio Synthesizer)</a>", true);
+      appendTerminalLog("raw", "<a href='vault.html' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>2. AI Neural Network Classifier (Python / TensorFlow)</a>", true);
+      appendTerminalLog("raw", "<a href='vault.html' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>3. Spooky Goth Tech Game Engine (C++ / OpenGL)</a>", true);
+      appendTerminalLog("raw", "<a href='vault.html' class='text-neon-cyan underline hover:text-neon-yellow font-bold'>4. MongoDB Dream Injector Pipeline (Node.js / Express)</a>", true);
+      appendTerminalLog("success", ">>> Click any project link or navigate to [03_VAULT] to inspect source code!");
+      break;
+
+    case "skills":
+    case "stack":
+      appendTerminalLog("system", "⚡ ENGINEERING PIPELINES & SKILL MATRIX:");
+      appendTerminalLog("raw", "<span class='text-neon-green font-bold'>[LANGUAGES]:</span> C++, Python, JavaScript (ES6+), TypeScript, HTML5, CSS3/Tailwind", true);
+      appendTerminalLog("raw", "<span class='text-neon-magenta font-bold'>[BACKEND]:</span> Node.js, Express, MongoDB, Firebase, Web Audio API, REST APIs", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>[DOMAINS]:</span> Cybernetics, Spooky Game Dev, Computer Science Teaching, Full-Stack Development", true);
+      break;
+
+    case "dossier":
+    case "bio":
+    case "about":
+      appendTerminalLog("system", "📜 SUBJECT DOSSIER:");
+      appendTerminalLog("raw", "<span class='text-white font-bold'>Tashenea Young</span> - Computer Science Student, Developer, Educator & Content Creator.", true);
+      appendTerminalLog("raw", "Passionate about combining technical rigor with dark cyber goth aesthetics, game engines, and empowering future techies.", true);
+      appendTerminalLog("raw", "<a href='dossier.html' class='text-neon-magenta underline font-bold'>[READ FULL ACADEMIC & PERSONAL DOSSIER]</a>", true);
+      break;
+
+    case "secret":
+    case "easteregg":
+      openHackModal();
+      appendTerminalLog("success", "🔮 SECRET UNLOCKED! OPENING OVERLORD CONTROL PANEL...");
+      break;
+
+    case "clear":
+      const container = document.getElementById("terminal-output-logs");
+      if (container) container.innerHTML = "";
+      appendTerminalLog("system", ">>> TERMINAL LOGS PURGED.");
+      break;
+
+    default:
+      appendTerminalLog("error", `COMMAND NOT RECOGNIZED: '${cmd}'. Type 'help' for command directory.`);
+      break;
+  }
+}
+
+function triggerSystemHack() {
+  playCyberSound("boot");
+  triggerScreenGlitch();
+  
+  appendTerminalLog("system", "==========================================================");
+  appendTerminalLog("system", "[+] INITIATING SYNAPSE OVERRIDE PROTOCOL...");
+  
+  let progress = 0;
+  const progressLine = document.createElement("div");
+  progressLine.className = "font-mono text-xs my-1 text-neon-yellow font-bold";
+  const logContainer = document.getElementById("terminal-output-logs");
+  if (logContainer) logContainer.appendChild(progressLine);
+
+  const hackTimer = setInterval(() => {
+    progress += 20;
+    playCyberSound("beep");
+
+    const filled = "█".repeat(progress / 5);
+    const empty = "░".repeat(20 - progress / 5);
+    progressLine.textContent = `[+] PENETRATING FIREWALL: [${filled}${empty}] ${progress}%`;
+
+    if (logContainer) logContainer.scrollTop = logContainer.scrollHeight;
+
+    if (progress >= 100) {
+      clearInterval(hackTimer);
+      setTimeout(() => {
+        playCyberSound("success");
+        sessionStorage.setItem("bee_net_hacked", "true");
+        updateHackerStatusUI();
+        
+        appendTerminalLog("success", "==========================================================");
+        appendTerminalLog("success", ">>> ACCESS GRANTED! FIREWALL OVERRIDDEN 100% <<<");
+        appendTerminalLog("success", ">>> CONGRATULATIONS: STATUS ELEVATED TO LEVEL 99 CYBER OVERLORD <<<");
+        appendTerminalLog("system", "==========================================================");
+        
+        openHackModal();
+      }, 300);
+    }
+  }, 120);
+}
+
+function updateHackerStatusUI() {
+  const isHacked = sessionStorage.getItem("bee_net_hacked") === "true";
+  const badge1 = document.getElementById("console-overlord-badge");
+  const badge2 = document.getElementById("header-overlord-badge");
+  if (isHacked) {
+    if (badge1) badge1.classList.remove("hidden");
+    if (badge2) badge2.classList.remove("hidden");
+  }
+}
+
+function openHackModal() {
+  playCyberSound("success");
+  const modal = document.getElementById("hack-reward-modal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
+}
+
+function closeHackModal() {
+  playCyberSound("click");
+  const modal = document.getElementById("hack-reward-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function setCyberTheme(themeName) {
+  playCyberSound("beep");
+  const body = document.getElementById("main-body") || document.body;
+  body.classList.remove("theme-green", "theme-pink", "theme-yellow");
+  if (themeName === "green") body.classList.add("theme-green");
+  else if (themeName === "pink") body.classList.add("theme-pink");
+  else if (themeName === "yellow") body.classList.add("theme-yellow");
+  
+  appendTerminalLog("system", `>>> ACCENT LIGHTING PRESET UPDATED TO: [${themeName.toUpperCase()}]`);
+}
+
 // Mobile Navigation Drawer Toggle Handler
 let mobileMenuOpen = false;
 
@@ -1648,4 +2018,12 @@ window.toggleMobileMenu = toggleMobileMenu;
 window.closeMobileMenu = closeMobileMenu;
 window.setNewsletterSubscribe = setNewsletterSubscribe;
 window.setAnonymousPost = setAnonymousPost;
+window.toggleMatrixRain = toggleMatrixRain;
+window.triggerScreenGlitch = triggerScreenGlitch;
+window.handleTerminalSubmit = handleTerminalSubmit;
+window.processHackerCommand = processHackerCommand;
+window.triggerSystemHack = triggerSystemHack;
+window.openHackModal = openHackModal;
+window.closeHackModal = closeHackModal;
+window.setCyberTheme = setCyberTheme;
 
