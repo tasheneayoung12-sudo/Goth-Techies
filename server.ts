@@ -108,8 +108,25 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    const publicPath = path.join(process.cwd(), "public");
+    const rootAssetsPath = path.join(process.cwd(), "assets");
+
+    // Primary build output static server
     app.use(express.static(distPath));
+    // Fallback static servers for direct asset requests on Render
+    app.use(express.static(publicPath));
+    app.use("/assets", express.static(path.join(distPath, "assets")));
+    app.use("/assets", express.static(path.join(publicPath, "assets")));
+    app.use("/assets", express.static(rootAssetsPath));
+    app.use("/assets/images", express.static(path.join(distPath, "assets/images")));
+    app.use("/assets/images", express.static(path.join(publicPath, "assets/images")));
+    app.use("/assets/images", express.static(path.join(rootAssetsPath, "images")));
     
+    // Explicit 404 handler for missing asset files to avoid sending HTML (index.html) as image payload
+    app.use(["/assets/*", "/*.jpg", "/*.jpeg", "/*.png", "/*.svg", "/*.webp", "/*.css", "/*.js"], (req, res) => {
+      res.status(404).send("Asset not found");
+    });
+
     app.get("/:page.html", (req, res) => {
       res.sendFile(path.join(distPath, `${req.params.page}.html`));
     });

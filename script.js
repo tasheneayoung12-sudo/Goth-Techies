@@ -429,22 +429,22 @@ function applyImageSource() {
   if (avatarImg) {
     avatarImg.onerror = function() {
       this.onerror = null;
-      this.src = "./assets/images/goth_techies_logo.jpg";
+      this.src = "/assets/images/goth_techies_logo.jpg";
     };
     avatarImg.src = source === "stock" 
-      ? "./assets/images/stock_goth_avatar_1783792279555.jpg" 
-      : "./assets/images/Profile_pic.jpg";
+      ? "/assets/images/stock_goth_avatar_1783792279555.jpg" 
+      : "/assets/images/Profile_pic.jpg";
     avatarImg.alt = source === "stock" ? "Cyber-Goth Stock Avatar" : "Tashenea's Uploaded Avatar";
   }
 
   if (portraitImg) {
     portraitImg.onerror = function() {
       this.onerror = null;
-      this.src = "./assets/images/goth_techies_logo.jpg";
+      this.src = "/assets/images/goth_techies_logo.jpg";
     };
     portraitImg.src = source === "stock" 
-      ? "./assets/images/stock_goth_portrait_1783792292032.jpg" 
-      : "./assets/images/Profile_pic.jpg";
+      ? "/assets/images/stock_goth_portrait_1783792292032.jpg" 
+      : "/assets/images/Profile_pic.jpg";
     portraitImg.alt = source === "stock" ? "Cyber-Goth Stock Portrait" : "Tashenea's Uploaded Portrait";
   }
 
