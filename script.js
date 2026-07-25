@@ -427,6 +427,10 @@ function applyImageSource() {
   const source = state.activeImageSource || "stock";
 
   if (avatarImg) {
+    avatarImg.onerror = function() {
+      this.onerror = null;
+      this.src = "./assets/images/goth_techies_logo.jpg";
+    };
     avatarImg.src = source === "stock" 
       ? "./assets/images/stock_goth_avatar_1783792279555.jpg" 
       : "./assets/images/Profile_pic.jpg";
@@ -434,6 +438,10 @@ function applyImageSource() {
   }
 
   if (portraitImg) {
+    portraitImg.onerror = function() {
+      this.onerror = null;
+      this.src = "./assets/images/goth_techies_logo.jpg";
+    };
     portraitImg.src = source === "stock" 
       ? "./assets/images/stock_goth_portrait_1783792292032.jpg" 
       : "./assets/images/Profile_pic.jpg";
