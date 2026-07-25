@@ -21,7 +21,7 @@ async function testConnection() {
     await client.connect();
     console.log("✅ SUCCESS: Successfully connected to MongoDB!");
     
-    const db = client.db("tashibee-cyber-hive");
+    const db = client.db("Uplink_contact");
     const collections = await db.listCollections().toArray();
     console.log("Available collections:", collections.map(c => c.name));
     

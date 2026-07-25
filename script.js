@@ -1,3 +1,16 @@
+// API Base URL Resolver: automatically connects to Render backend when configured on GitHub Pages
+const API_BASE_URL = (function() {
+  if (typeof window !== "undefined" && window.BACKEND_URL) {
+    return window.BACKEND_URL.replace(/\/$/, "");
+  }
+  return "";
+})();
+
+function getApiEndpoint(path) {
+  const cleanPath = path.startsWith("/") ? path : "/" + path;
+  return API_BASE_URL + cleanPath;
+}
+
 // Web Audio API Synthesizer (Cyber Sound System)
 let audioCtx = null;
 let isMuted = false;
@@ -436,6 +449,105 @@ function switchProfileImageSource(source) {
   applyImageSource();
 }
 
+// System Diagnostic Panel for MongoDB Atlas & Render Backend
+function renderFooterDiagnosticPanel() {
+  const footer = document.querySelector("footer");
+  if (!footer) return;
+
+  if (document.getElementById("footer-diagnostic-panel")) return;
+
+  const panelDiv = document.createElement("div");
+  panelDiv.id = "footer-diagnostic-panel";
+  panelDiv.className = "w-full max-w-7xl mx-auto mt-8 pt-6 border-t border-neon-cyan/20 flex flex-col md:flex-row items-center justify-between gap-4 bg-black/80 p-4 rounded-xl border border-neon-cyan/20 font-mono text-xs shadow-lg";
+
+  panelDiv.innerHTML = `
+    <div class="flex items-center gap-2">
+      <div class="w-2.5 h-2.5 rounded-full bg-neon-cyan animate-pulse shrink-0"></div>
+      <span class="font-bold text-neon-yellow tracking-wider uppercase text-[11px] font-terminal">UPLINK DIAGNOSTICS:</span>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-zinc-300 text-xs">
+      <!-- MONGODB ATLAS STATUS -->
+      <div class="flex items-center gap-2 bg-cyber-dark/90 px-3 py-1.5 rounded-lg border border-zinc-800/80">
+        <span class="text-zinc-400 font-sans">MongoDB Atlas:</span>
+        <span id="diag-mongo-status" class="flex items-center gap-1.5 font-bold text-yellow-400">
+          <span class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></span>
+          <span>CHECKING...</span>
+        </span>
+      </div>
+
+      <!-- RENDER BACKEND STATUS -->
+      <div class="flex items-center gap-2 bg-cyber-dark/90 px-3 py-1.5 rounded-lg border border-zinc-800/80">
+        <span class="text-zinc-400 font-sans">Render Link:</span>
+        <span id="diag-render-status" class="flex items-center gap-1.5 font-bold text-yellow-400">
+          <span class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></span>
+          <span>CHECKING...</span>
+        </span>
+      </div>
+
+      <!-- RE-TEST BUTTON -->
+      <button onclick="runFooterDiagnostics()" class="px-3 py-1.5 bg-neon-cyan/10 hover:bg-neon-cyan/20 border border-neon-cyan/40 text-neon-cyan hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-[11px] font-bold font-mono active:scale-95">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        <span>TEST LINK</span>
+      </button>
+    </div>
+  `;
+
+  const footerContainer = footer.querySelector(".max-w-7xl") || footer;
+  footerContainer.appendChild(panelDiv);
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+function runFooterDiagnostics() {
+  const mongoEl = document.getElementById("diag-mongo-status");
+  const renderEl = document.getElementById("diag-render-status");
+
+  if (mongoEl) {
+    mongoEl.className = "flex items-center gap-1.5 font-bold text-yellow-400";
+    mongoEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></span><span>PINGING...</span>`;
+  }
+  if (renderEl) {
+    renderEl.className = "flex items-center gap-1.5 font-bold text-yellow-400";
+    renderEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></span><span>PINGING...</span>`;
+  }
+
+  fetch(getApiEndpoint("/api/health"), { cache: "no-store" })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      if (renderEl) {
+        renderEl.className = "flex items-center gap-1.5 font-bold text-neon-green";
+        renderEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-neon-green"></span><span>ONLINE (200 OK)</span>`;
+      }
+
+      if (mongoEl) {
+        if (data.mongodb === "CONNECTED") {
+          mongoEl.className = "flex items-center gap-1.5 font-bold text-neon-green";
+          mongoEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-neon-green"></span><span>CONNECTED (Atlas)</span>`;
+        } else {
+          mongoEl.className = "flex items-center gap-1.5 font-bold text-amber-400";
+          mongoEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>OFFLINE (URI Pending)</span>`;
+        }
+      }
+    })
+    .catch(err => {
+      console.warn("Diagnostics health check error:", err);
+      if (renderEl) {
+        renderEl.className = "flex items-center gap-1.5 font-bold text-neon-magenta";
+        renderEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-neon-magenta"></span><span>UNREACHABLE</span>`;
+      }
+      if (mongoEl) {
+        mongoEl.className = "flex items-center gap-1.5 font-bold text-neon-magenta";
+        mongoEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-neon-magenta"></span><span>UNREACHABLE</span>`;
+      }
+    });
+}
+
 function initializePageComponents() {
   setupActiveNavObserver();
   setupHovers();
@@ -443,6 +555,10 @@ function initializePageComponents() {
   startClock();
   loadPersistentData();
   updateHackerStatusUI();
+  
+  // Render & Execute Footer Diagnostic Panel
+  renderFooterDiagnosticPanel();
+  runFooterDiagnostics();
   
   if (document.getElementById("profile-portrait-img") || document.getElementById("profile-avatar-img")) {
     applyImageSource();
@@ -1250,7 +1366,7 @@ function handleTransmit(e) {
       `;
     }
 
-    fetch("/api/newsletter/subscribe", {
+    fetch(getApiEndpoint("/api/newsletter/subscribe"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
@@ -1342,7 +1458,7 @@ function handleTransmit(e) {
   const tunnelLogs = document.getElementById("tunnel-logs-window");
   const transmissionLog = document.createElement("div");
   transmissionLog.className = "text-neon-magenta font-bold animate-pulse mt-1 flex items-center gap-1";
-  transmissionLog.innerHTML = `<span>⌛ PROTOCOL_INJECT: ENCRYPTING TUNNEL PAYLOAD...</span>`;
+  transmissionLog.innerHTML = `<span>⌛ PROTOCOL_INJECT: TRANSMITTING TO Secure_Message DATABASE...</span>`;
   tunnelLogs.appendChild(transmissionLog);
   tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
 
@@ -1351,65 +1467,128 @@ function handleTransmit(e) {
   submitBtn.disabled = true;
   submitBtn.innerHTML = `
     <div class="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin border-current"></div>
-    <span>TRANSMITTING COFFEE CELL PAYLOAD STATUS...</span>
+    <span>TRANSMITTING PAYLOAD TO Secure_Message COLLECTION...</span>
   `;
 
-  setTimeout(() => {
-    playCyberSound("success");
-    submitBtn.disabled = false;
-
-    // Reset status log
-    transmissionLog.remove();
-    const successLog = document.createElement("div");
-    successLog.className = "text-neon-green font-bold mt-1 flex items-center gap-1";
-    successLog.innerHTML = `<span>✔ TRANSACTION COMPLETE! PACKET BROADCASTED [0x92BC]</span>`;
-    tunnelLogs.appendChild(successLog);
-    tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
-
-    // Save payload
-    const now = new Date();
-    const payload = {
+  fetch(getApiEndpoint("/api/secure-message"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       name: name,
       email: email,
-      category: category,
-      message: message,
-      timestamp: now.toISOString().replace("T", " ").substring(0, 19),
+      protocol_category: category,
+      raw_message_payload: message,
       coffeeAmount: contactMode === "COFFEE" ? fuelAmount : null
-    };
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      playCyberSound("success");
+      submitBtn.disabled = false;
 
-    state.transmissions.unshift(payload);
-    state.transmissions = state.transmissions.slice(0, 5); // Max 5 logs
-    savePersistentData();
-    renderTransmissions();
+      // Reset status log
+      transmissionLog.remove();
+      const successLog = document.createElement("div");
+      successLog.className = "text-neon-green font-bold mt-1 flex items-center gap-1";
+      successLog.innerHTML = `<span>✔ ${data.message || "TRANSMISSION STORED IN Secure_Message!"} [${data.database}]</span>`;
+      tunnelLogs.appendChild(successLog);
+      tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
 
-    // Reset Form inputs
-    document.getElementById("contact-name").value = "";
-    document.getElementById("contact-email").value = "";
-    document.getElementById("message-input").value = "";
-    document.getElementById("custom-coffee-input").value = "";
+      // Save payload to local state ledger
+      const now = new Date();
+      const payload = {
+        name: name,
+        email: email,
+        category: category,
+        message: message,
+        timestamp: now.toISOString().replace("T", " ").substring(0, 19),
+        coffeeAmount: contactMode === "COFFEE" ? fuelAmount : null
+      };
 
-    setTimeout(() => {
-      successLog.remove();
-    }, 5000);
+      state.transmissions.unshift(payload);
+      state.transmissions = state.transmissions.slice(0, 5); // Max 5 logs
+      savePersistentData();
+      renderTransmissions();
 
-    // Reset submit buttons style
-    if (contactMode === "COFFEE") {
-      updateSubmitBtnCoffee();
-    } else {
-      submitBtn.innerHTML = `
-        <i data-lucide="send" class="w-4 h-4"></i>
-        <span>Send Signal / Transmit Message</span>
-      `;
-    }
-    lucide.createIcons();
+      // Reset Form inputs
+      document.getElementById("contact-name").value = "";
+      document.getElementById("contact-email").value = "";
+      document.getElementById("message-input").value = "";
+      document.getElementById("custom-coffee-input").value = "";
 
-  }, 1800);
+      setTimeout(() => {
+        successLog.remove();
+      }, 6000);
+
+      // Reset submit buttons style
+      if (contactMode === "COFFEE") {
+        updateSubmitBtnCoffee();
+      } else {
+        submitBtn.innerHTML = `
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send Signal / Transmit Message</span>
+        `;
+      }
+      lucide.createIcons();
+    })
+    .catch(err => {
+      console.error("Transmission error:", err);
+      playCyberSound("glitch");
+      submitBtn.disabled = false;
+      transmissionLog.remove();
+
+      const errorLog = document.createElement("div");
+      errorLog.className = "text-neon-red font-bold mt-1 flex items-center gap-1";
+      errorLog.innerHTML = `<span>❌ UPLINK_FAILURE: CANNOT_WRITE_TO_SECURE_MESSAGE</span>`;
+      tunnelLogs.appendChild(errorLog);
+      tunnelLogs.scrollTop = tunnelLogs.scrollHeight;
+
+      setTimeout(() => {
+        errorLog.remove();
+      }, 5000);
+
+      if (contactMode === "COFFEE") {
+        updateSubmitBtnCoffee();
+      } else {
+        submitBtn.innerHTML = `
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send Signal / Transmit Message</span>
+        `;
+      }
+      lucide.createIcons();
+    });
+}
+
+function getEncouragingMessage(protocol, index = 0) {
+  const categoryMessages = {
+    "General Support": "✨ Uplink established! Stay determined—your curiosity and relentless effort drive real breakthroughs.",
+    "Bounty Inquiries": "🚀 Transmission logged! Fortune favors the bold—keep pushing boundaries and reaching new heights.",
+    "Subculture Collaborations": "⚡ Synergy acquired! Creative minds unite to build extraordinary things—keep inspiring the network.",
+    "Fuel & Coffee Support": "☕ Caffeine & Signal Received! Fueling passion into perfection—your energy is truly unstoppable!",
+    "Newsletter Signup": "📬 Network Uplink Active! Connected to the pulse of innovation—stay curious, bold, and inspired."
+  };
+
+  if (categoryMessages[protocol]) {
+    return categoryMessages[protocol];
+  }
+
+  const pool = [
+    "✨ Signal received! Keep pushing forward—your vision and determination shape tomorrow's grid.",
+    "🚀 Uplink verified! Every line of effort moves you closer to greatness. Stay resilient!",
+    "⚡ Connection confirmed! Radiate positivity into the system—amazing milestones are ahead.",
+    "💡 Transmission secured! Bright ideas ignite real progress—keep innovating and believing.",
+    "🛡️ Protocol locked! Your hard work and dedication build a stronger path every single day. Onward!"
+  ];
+
+  return pool[index % pool.length];
 }
 
 function renderTransmissions() {
   const container = document.getElementById("transmissions-list-container");
   const listingSection = document.getElementById("transmissions-listing-section");
   
+  if (!container || !listingSection) return;
+
   if (state.transmissions.length === 0) {
     listingSection.classList.add("hidden");
     return;
@@ -1418,39 +1597,31 @@ function renderTransmissions() {
   listingSection.classList.remove("hidden");
   container.innerHTML = "";
 
-  state.transmissions.forEach((sig) => {
+  state.transmissions.forEach((sig, idx) => {
     const div = document.createElement("div");
-    div.className = "p-2.5 border border-white/5 bg-zinc-950/60 rounded text-[11px] font-mono flex flex-col gap-1";
+    div.className = "p-3 border border-neon-cyan/20 bg-zinc-950/80 rounded text-[11px] font-mono flex flex-col gap-1.5 shadow-sm";
     
-    let coffeeSection = "";
-    if (sig.coffeeAmount) {
-      coffeeSection = `
-        <div class="flex items-center gap-1 py-0.5 px-2 bg-neon-yellow/10 border border-neon-yellow/20 text-neon-yellow rounded w-fit text-[10px] font-bold mt-0.5 mb-1 animate-pulse">
-          <i data-lucide="coffee" class="w-3 h-3 text-neon-yellow" style="stroke-width: 3"></i>
-          <span>FUELED CAFFEINE: $${sig.coffeeAmount}.00</span>
-        </div>
-      `;
-    }
+    const protocolVal = sig.category || sig.protocol_category || "General Support";
+    const encouragingMsg = getEncouragingMessage(protocolVal, idx);
 
     div.innerHTML = `
-      <div class="flex justify-between text-zinc-500">
-        <span class="text-neon-cyan font-bold">${sig.name}</span>
-        <span>${sig.timestamp}</span>
+      <div class="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider">
+        <span class="text-neon-magenta">[PROTOCOL: ${protocolVal}]</span>
+        <span class="text-zinc-500 text-[9px] flex items-center gap-1 font-mono">
+          <i data-lucide="lock" class="w-3 h-3 text-neon-cyan/70"></i>
+          PAYLOAD ENCRYPTED
+        </span>
       </div>
-      ${coffeeSection}
-      <div class="text-[10px] text-neon-magenta font-mono font-bold uppercase tracking-wider mb-1 mt-0.5">
-        [PROTOCOL: ${sig.category}]
-      </div>
-      <p class="text-zinc-400 font-sans italic">${sig.message}</p>
-      <div class="flex items-center gap-1 text-[9px] text-neon-green mt-1">
-        <i data-lucide="shield-check" class="w-3 h-3"></i>
-        <span>VERIFIED_HASH_COMPACT</span>
-      </div>
+      <p class="text-neon-green font-sans leading-relaxed text-xs font-medium mt-0.5">
+        ${encouragingMsg}
+      </p>
     `;
 
     container.appendChild(div);
   });
-  lucide.createIcons();
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
 }
 
 // Local Storage Handlers
@@ -2026,4 +2197,5 @@ window.triggerSystemHack = triggerSystemHack;
 window.openHackModal = openHackModal;
 window.closeHackModal = closeHackModal;
 window.setCyberTheme = setCyberTheme;
+window.runFooterDiagnostics = runFooterDiagnostics;
 
