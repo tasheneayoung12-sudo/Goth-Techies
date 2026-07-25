@@ -1,7 +1,17 @@
-// API Base URL Resolver: automatically connects to Render backend when configured on GitHub Pages
+// API Base URL Resolver: automatically connects to Render backend when hosted on GitHub Pages
+const RENDER_BACKEND_URL = "https://goth-techies.onrender.com";
+
 const API_BASE_URL = (function() {
   if (typeof window !== "undefined" && window.BACKEND_URL) {
     return window.BACKEND_URL.replace(/\/$/, "");
+  }
+  // Automatically route to Render backend when hosted on production domains (e.g. GitHub Pages)
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocal = hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168.") || hostname.startsWith("10.");
+    if (!isLocal) {
+      return RENDER_BACKEND_URL;
+    }
   }
   return "";
 })();
@@ -682,7 +692,7 @@ function obfuscateEmail(email) {
 }
 
 function fetchDreams() {
-  fetch("/api/dreams/all")
+  fetch(getApiEndpoint("/api/dreams/all"))
     .then(res => res.json())
     .then(data => {
       if (data && data.success && Array.isArray(data.dreams)) {
@@ -924,7 +934,7 @@ async function injectDream(e) {
   }
 
   // 2. Fetch submit to Mongoose backend survey endpoint
-  fetch("/api/website-survey", {
+  fetch(getApiEndpoint("/api/website-survey"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, category, title, description, newsletterConsent })

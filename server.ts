@@ -21,13 +21,53 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+// Disable X-Powered-By header to prevent server technology fingerprinting
+app.disable("x-powered-by");
+
 // Trust reverse proxy for rate limiter (Cloud Run / Nginx)
 app.set("trust proxy", 1);
 
-// Security Middleware
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
-app.use(express.json());
+// 1. Security Headers Middleware (Helmet)
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    xssFilter: true,
+    noSniff: true,
+    hidePoweredBy: true
+  })
+);
+
+// 2. Cross-Origin Resource Sharing (CORS) Security Middleware
+const allowedOrigins = [
+  "https://goth-techies.onrender.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173"
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".github.io") ||
+        origin.includes("run.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    maxAge: 86400
+  })
+);
+
+// 3. Body Parsing Middleware with payload limit
+app.use(express.json({ limit: "100kb" }));
+
 
 // Rate Limiting
 app.use("/api", globalLimiter);

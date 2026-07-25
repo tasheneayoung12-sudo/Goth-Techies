@@ -19,7 +19,10 @@ dotenv.config();
 
 const app = express();
 
-// Trust reverse proxy for rate limiter (Cloud Run / Nginx)
+// Disable X-Powered-By header to prevent server technology fingerprinting
+app.disable("x-powered-by");
+
+// Trust reverse proxy for rate limiter (Cloud Run / Render / Nginx)
 app.set("trust proxy", 1);
 
 const PORT = process.env.PORT || 3000;
@@ -27,15 +30,44 @@ const PORT = process.env.PORT || 3000;
 // 1. Security Headers Middleware (Helmet)
 app.use(
   helmet({
-    contentSecurityPolicy: false // Disabled CSP restriction to allow frontend inline scripts and media sources
+    contentSecurityPolicy: false, // Disabled CSP restriction to allow inline scripts, Tailwind, and media assets
+    crossOriginEmbedderPolicy: false,
+    xssFilter: true, // Enables XSS filtering in browsers
+    noSniff: true, // Prevents browsers from guessing/sniffing content MIME-types
+    hidePoweredBy: true // Removes X-Powered-By header
   })
 );
 
-// 2. Cross-Origin Resource Sharing (CORS) Middleware
-app.use(cors());
+// 2. Cross-Origin Resource Sharing (CORS) Security Middleware
+const allowedOrigins = [
+  "https://goth-techies.onrender.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173"
+];
 
-// 3. Body Parsing Middleware
-app.use(express.json());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".github.io") ||
+        origin.includes("run.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    maxAge: 86400 // Cache preflight response for 24 hours
+  })
+);
+
+// 3. Body Parsing Middleware with payload size restriction (100kb max)
+app.use(express.json({ limit: "100kb" }));
+
 
 // 4. Rate Limiting Middleware (Global Protection)
 app.use("/api", globalLimiter);
