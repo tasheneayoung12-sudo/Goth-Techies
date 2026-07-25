@@ -3,7 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tashibee // Cyber-Hive</title>
+    <title>Tashibee // Cyber-Hive Main Hub</title>
+    
+    <!-- ========================================== -->
+    <!-- BEGINNER-FRIENDLY SEO (SEARCH ENGINE OPTIMIZATION) METADATA -->
+    <!-- ========================================== -->
+
+    <!-- SEO Meta Description: A short 1-2 sentence overview of your website. Google shows this text in search results. -->
+    <meta name="description" content="Welcome to the Tashibee Cyber-Hive terminal hub. Explore cyber-goth subculture logs, tech pipelines, anime recommendations, and community suggestion vaults." />
+
+    <!-- SEO Meta Keywords: Relevant search terms that help search engines understand what topics your site covers. -->
+    <meta name="keywords" content="Tashibee, Cyber-Hive, Cyber-Goth, Tech Terminal, Anime Recommendations, Dark Aesthetics, Cyberpunk Portfolio" />
+
+    <!-- SEO Author Tag: Identifies the author or creator of the website. -->
+    <meta name="author" content="Tashibee" />
+
+    <!-- SEO Robots Tag: Tells search engines like Google to index (list) this page and follow its links. -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- SEO Canonical Link: Defines the official primary Web address for this page to prevent duplicate link penalties. -->
+    <link rel="canonical" href="https://goth-techies.onrender.com/index.html" />
+
+    <!-- SEO Open Graph (OG) Tags: Controls how link preview cards appear when shared on social platforms like Facebook, Discord, and LinkedIn. -->
+    <meta property="og:title" content="Tashibee // Cyber-Hive Main Hub" />
+    <meta property="og:description" content="Welcome to the Tashibee Cyber-Hive terminal hub. Explore cyber-goth subculture logs, tech pipelines, anime recommendations, and community suggestion vaults." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://goth-techies.onrender.com/index.html" />
+    <meta property="og:site_name" content="Tashibee // Cyber-Hive" />
+
+    <!-- SEO Twitter Card Tags: Formats how link preview cards appear when shared on X (formerly Twitter). -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tashibee // Cyber-Hive Main Hub" />
+    <meta name="twitter:description" content="Welcome to the Tashibee Cyber-Hive terminal hub. Explore cyber-goth subculture logs, tech pipelines, anime recommendations, and community suggestion vaults." />
+
+    <!-- ========================================== -->
+    <!-- END OF SEO METADATA -->
+    <!-- ========================================== -->
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -105,9 +140,12 @@
       <!-- TASKBAR / SYSTEM HEADER -->
       <header class="sticky top-0 z-40 bg-cyber-black/95 backdrop-blur-md border-b border-neon-cyan/20 px-4 py-2.5 flex flex-col md:flex-row gap-3 items-center justify-between font-terminal text-xs text-neon-cyan select-none transition-all duration-300">
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
-          <div class="flex items-center gap-2 cursor-pointer" onclick="playCyberSound('click'); document.getElementById('hero').scrollIntoView({behavior: 'smooth'})">
-            <span class="w-2.5 h-2.5 bg-neon-yellow rounded-full shadow-[0_0_8px_#fefe00] animate-pulse"></span>
-            <span class="font-bold tracking-widest text-neon-yellow text-sm">BEE_NET://TASHIBEE</span>
+          <div class="flex items-center gap-2.5 cursor-pointer" onclick="playCyberSound('click'); document.getElementById('hero').scrollIntoView({behavior: 'smooth'})">
+            <img src="./assets/images/goth_techies_logo.jpg" alt="Goth Techies Logo" class="w-8 h-8 rounded-full border border-neon-magenta/60 shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+            <div class="flex flex-col">
+              <span class="font-bold tracking-widest text-neon-magenta text-sm font-terminal leading-none">GOTH TECHIES</span>
+              <span class="text-[9px] text-neon-cyan/70 font-mono tracking-tighter">BEE_NET://TASHIBEE</span>
+            </div>
           </div>
           
           <div class="flex items-center gap-2">
@@ -196,6 +234,12 @@
           <div class="absolute inset-0 bg-[radial-gradient(rgba(254,254,0,0.015)_1.5px,transparent_1.5px)] [background-size:24px_24px] pointer-events-none"></div>
 
           <div class="max-w-4xl relative z-10 flex flex-col items-center gap-6">
+            <!-- Beginner-friendly note: Official Goth Techies logo emblem badge -->
+            <div class="relative group my-2">
+              <div class="absolute -inset-1.5 bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-cyan rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+              <img src="./assets/images/goth_techies_logo.jpg" alt="Official Goth Techies Logo" class="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-neon-magenta object-cover shadow-[0_0_25px_rgba(255,0,127,0.6)] group-hover:scale-105 transition-all duration-300" referrerPolicy="no-referrer" />
+            </div>
+
             <div data-cyber-hover class="px-3.5 py-1.5 border border-neon-magenta/35 bg-neon-magenta/5 text-neon-magenta rounded font-terminal text-[11px] tracking-widest uppercase flex items-center gap-2 select-none">
               <i data-lucide="zap" class="w-3.5 h-3.5 text-neon-yellow animate-bounce"></i>
               <span>SYSTEM_ONLINE_NODE // TASHIBEE_NET</span>
@@ -214,28 +258,29 @@
               Computer Science, Gaming, Teaching, and Spooky Content for the next generation of Goth Techies.
             </p>
 
-            <div class="flex flex-col sm:flex-row gap-4 mt-6 items-center">
+            <!-- Beginner-friendly note: On mobile phones, these hero action buttons expand to full width (w-full) for easy tapping, while remaining side-by-side (sm:flex-row) on desktop computers. -->
+            <div class="flex flex-col sm:flex-row gap-3 mt-6 items-center w-full max-w-sm sm:max-w-none">
               <button
                 onclick="triggerSystemHack()"
-                class="px-8 py-4 bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-yellow hover:brightness-110 text-white font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_20px_rgba(255,0,127,0.4)] transition-all font-bold text-sm sm:text-base flex items-center gap-2.5 select-none animate-pulse"
+                class="w-full sm:w-auto justify-center px-6 py-3.5 bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-yellow hover:brightness-110 text-white font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_20px_rgba(255,0,127,0.4)] transition-all font-bold text-xs sm:text-sm flex items-center gap-2 select-none animate-pulse min-h-[44px]"
               >
-                <i data-lucide="zap" class="w-5 h-5 text-neon-yellow"></i>
+                <i data-lucide="zap" class="w-4 h-4 text-neon-yellow"></i>
                 <span>⚡ INITIATE SYSTEM HACK</span>
               </button>
 
               <button
                 onclick="toggleMatrixRain()"
-                class="px-7 py-4 bg-cyber-dark border border-neon-cyan/50 hover:border-neon-cyan hover:bg-neon-cyan/10 text-neon-cyan font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all font-bold text-sm sm:text-base flex items-center gap-2 select-none"
+                class="w-full sm:w-auto justify-center px-5 py-3.5 bg-cyber-dark border border-neon-cyan/50 hover:border-neon-cyan hover:bg-neon-cyan/10 text-neon-cyan font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all font-bold text-xs sm:text-sm flex items-center gap-2 select-none min-h-[44px]"
               >
-                <i data-lucide="binary" class="w-5 h-5 text-neon-cyan"></i>
+                <i data-lucide="binary" class="w-4 h-4 text-neon-cyan"></i>
                 <span>Toggle Matrix Rain</span>
               </button>
 
               <button
                 onclick="toggleCRT()"
-                class="px-7 py-4 bg-cyber-dark border border-neon-green/50 hover:border-neon-green hover:bg-neon-green/10 text-neon-green font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_15px_rgba(57,255,20,0.2)] transition-all font-bold text-sm sm:text-base flex items-center gap-2 select-none"
+                class="w-full sm:w-auto justify-center px-5 py-3.5 bg-cyber-dark border border-neon-green/50 hover:border-neon-green hover:bg-neon-green/10 text-neon-green font-terminal tracking-widest uppercase rounded cursor-pointer shadow-[0_0_15px_rgba(57,255,20,0.2)] transition-all font-bold text-xs sm:text-sm flex items-center gap-2 select-none min-h-[44px]"
               >
-                <i data-lucide="monitor" class="w-5 h-5 text-neon-green"></i>
+                <i data-lucide="monitor" class="w-4 h-4 text-neon-green"></i>
                 <span>Toggle CRT</span>
               </button>
             </div>

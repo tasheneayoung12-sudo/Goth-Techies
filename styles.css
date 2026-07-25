@@ -189,3 +189,76 @@ body {
 .animate-glitch-heavy {
   animation: glitchHeavy 0.4s ease-in-out;
 }
+
+/* =================================================================== */
+/* BEGINNER-FRIENDLY MOBILE PHONE RESPONSIVENESS & TOUCH OPTIMIZATION  */
+/* =================================================================== */
+
+/* 1. Prevent unwanted side-scrolling and ensure text wraps on small phones */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    scroll-padding-top: 140px; /* Adjust smooth scroll offset for mobile stacked header */
+  }
+
+  /* Ensure long terminal text, code snippets, and headlines break cleanly on phone screens */
+  h1, h2, h3, p, pre, code, .font-mono, .font-terminal {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Make buttons and links easy to tap on mobile touchscreens (minimum 42px touch target) */
+  button, input[type="submit"], a.nav-item {
+    min-height: 42px;
+  }
+
+  /* Style mobile navigation drawer when expanded for high contrast and clean tapping */
+  #navbar-links.flex {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(8, 8, 17, 0.98);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.15);
+  }
+
+  #navbar-links.flex a {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  #navbar-links.flex a:last-child {
+    border-bottom: none;
+  }
+
+  /* Ensure taskbar control buttons wrap nicely on phone screens */
+  #taskbar-controls.flex {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 0.5rem;
+  }
+
+  /* Adjust terminal output box max height on smaller screens so keyboard doesn't block view */
+  #terminal-output-logs {
+    max-height: 240px;
+  }
+}
+
+/* 2. Extra adjustments for ultra-small smartphones (e.g., width under 400px) */
+@media (max-width: 400px) {
+  .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Scale down huge hero title font slightly so it stays on screen without wrapping awkwardly */
+  h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
