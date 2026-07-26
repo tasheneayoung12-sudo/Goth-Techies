@@ -97,13 +97,13 @@ app.use("/api/gemini", geminiRoutes);
 
 // Images API Endpoint for backend & frontend visibility
 app.get("/api/images", (req, res) => {
-  const images = [
-    { name: "Goth_Techieslogo.png", path: "images/Goth_Techieslogo.png", assetPath: "assets/images/Goth_Techieslogo.png" }
-  ];
-  res.json({ status: "success", count: images.length, images });
+  res.json({ status: "success", count: 0, images: [] });
 });
 
 // Helper to parse Google Drive URLs and extract file or folder ID
+const DEFAULT_DRIVE_FOLDER_ID = "1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB";
+const DEFAULT_DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB?usp=sharing";
+
 function extractGoogleDriveFileId(urlOrId: string): string | null {
   if (!urlOrId) return null;
   const trimmed = urlOrId.trim();
@@ -122,15 +122,25 @@ function extractGoogleDriveFileId(urlOrId: string): string | null {
   return null;
 }
 
-// Google Drive Folder Listing Endpoint (Supports folder name '0-Goth Techies' & Folder URLs)
+// Google Drive Config API Endpoint
+app.get("/api/drive/config", (req, res) => {
+  res.json({
+    status: "success",
+    folderId: DEFAULT_DRIVE_FOLDER_ID,
+    folderUrl: DEFAULT_DRIVE_FOLDER_URL,
+    message: "Default Google Drive folder configured for all site images and image creation targets."
+  });
+});
+
+// Google Drive Folder Listing Endpoint (Supports folder ID '1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB' & Folder URLs)
 app.get("/api/drive/folder", async (req, res) => {
   try {
     const { google } = await import("googleapis");
     const authHeader = req.headers.authorization;
     const tokenFromReq = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : (req.query.token as string);
-    const targetFolder = (req.query.folder as string) || (req.query.folderId as string) || (req.query.url as string) || "0-Goth Techies";
+    const targetFolder = (req.query.folder as string) || (req.query.folderId as string) || (req.query.url as string) || DEFAULT_DRIVE_FOLDER_ID;
     
-    let folderId = extractGoogleDriveFileId(targetFolder);
+    let folderId = extractGoogleDriveFileId(targetFolder) || DEFAULT_DRIVE_FOLDER_ID;
 
     const oauth2Client = new google.auth.OAuth2();
     if (tokenFromReq) {
@@ -139,7 +149,7 @@ app.get("/api/drive/folder", async (req, res) => {
 
     const drive = google.drive({ version: "v3", auth: tokenFromReq ? oauth2Client : undefined });
 
-    // If targetFolder is a folder name like "0-Goth Techies" and we have auth token
+    // If targetFolder is a folder name and not an ID, search by name
     if (!folderId && tokenFromReq) {
       const folderSearch = await drive.files.list({
         q: `name = '${targetFolder.replace(/'/g, "\\'")}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
@@ -147,7 +157,7 @@ app.get("/api/drive/folder", async (req, res) => {
         pageSize: 5
       });
       if (folderSearch.data.files && folderSearch.data.files.length > 0) {
-        folderId = folderSearch.data.files[0].id || null;
+        folderId = folderSearch.data.files[0].id || DEFAULT_DRIVE_FOLDER_ID;
       }
     }
 
@@ -155,7 +165,7 @@ app.get("/api/drive/folder", async (req, res) => {
     if (folderId) {
       query += ` and '${folderId}' in parents`;
     } else {
-      query += ` and name contains 'goth'`;
+      query += ` and '${DEFAULT_DRIVE_FOLDER_ID}' in parents`;
     }
 
     if (tokenFromReq) {
@@ -172,7 +182,14 @@ app.get("/api/drive/folder", async (req, res) => {
         thumbnailUrl: `https://drive.google.com/thumbnail?id=${f.id}&sz=w1000`,
         proxyUrl: `/api/drive/image/${f.id}`
       }));
-      return res.json({ status: "success", folderName: targetFolder, folderId, count: files.length, files });
+      return res.json({
+        status: "success",
+        folderName: targetFolder,
+        folderId,
+        folderUrl: `https://drive.google.com/drive/folders/${folderId}?usp=sharing`,
+        count: files.length,
+        files
+      });
     }
 
     // Fallback response for unauthenticated calls
@@ -180,8 +197,9 @@ app.get("/api/drive/folder", async (req, res) => {
       status: "info",
       folderName: targetFolder,
       folderId,
-      message: `Connect Google Drive or paste a Google Drive folder link/ID for folder '${targetFolder}'`,
-      instructions: "Paste your Google Drive '0-Goth Techies' folder link or File IDs into the input box below."
+      folderUrl: `https://drive.google.com/drive/folders/${folderId}?usp=sharing`,
+      message: `Active image folder set to Google Drive folder '${folderId}'`,
+      instructions: `Paste your Google Drive folder link (${DEFAULT_DRIVE_FOLDER_URL}) or File IDs into the input box.`
     });
   } catch (error: any) {
     console.error("Google Drive API folder list error:", error?.message || error);

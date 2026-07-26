@@ -59,23 +59,22 @@ function applyStoredDriveLogo() {
       'img[alt*="Logo"]',
       'img[alt*="Goth Techies"]',
       'img[alt*="Avatar"]',
-      'img[alt*="Portrait"]',
-      '#profile-avatar-img',
-      '#profile-portrait-img'
+      'img[alt*="Portrait"]'
     ];
     selectors.forEach(sel => {
       document.querySelectorAll(sel).forEach(img => {
-        img.src = storedUrl;
-        img.onerror = function() {
-          this.onerror = null;
-          this.src = "images/Goth_Techieslogo.png";
-        };
+        if (img && img.tagName === "IMG") {
+          img.src = storedUrl;
+        }
       });
     });
   } catch (e) {
     console.error("Failed to apply stored drive logo:", e);
   }
 }
+
+const DEFAULT_DRIVE_FOLDER_ID = "1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB";
+const DEFAULT_DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB?usp=sharing";
 
 function setAsActiveDriveLogo(urlOrId) {
   const parsed = parseGoogleDriveUrl(urlOrId);
@@ -85,7 +84,7 @@ function setAsActiveDriveLogo(urlOrId) {
     localStorage.setItem("gdrive_active_file_id", parsed.fileId);
     applyStoredDriveLogo();
     if (typeof playCyberSound === "function") playCyberSound("success");
-    alert("⚡ Google Drive image from '0-Goth Techies' set as active site logo & main image!");
+    alert("⚡ Google Drive image from folder '1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB' set as active site logo & main image!");
     return true;
   } catch (e) {
     console.error("Failed to save active drive logo:", e);
@@ -99,11 +98,7 @@ function handleLoadDriveImage() {
   if (typeof playCyberSound === "function") playCyberSound("click");
   const input = document.getElementById("gdrive-url-input");
   if (!input) return;
-  const val = input.value.trim();
-  if (!val) {
-    alert("Please paste a Google Drive image link or File ID from folder '0-Goth Techies'.");
-    return;
-  }
+  const val = input.value.trim() || DEFAULT_DRIVE_FOLDER_URL;
   const parsed = parseGoogleDriveUrl(val);
   if (!parsed) {
     alert("Could not extract a valid Google Drive File ID. Make sure the link is from Google Drive.");
@@ -141,7 +136,7 @@ async function handleFetchGothTechiesFolder() {
   if (typeof playCyberSound === "function") playCyberSound("click");
   const input = document.getElementById("gdrive-url-input");
   const folderVal = input ? input.value.trim() : "";
-  const targetFolder = folderVal || "0-Goth Techies";
+  const targetFolder = folderVal || DEFAULT_DRIVE_FOLDER_ID;
 
   const galleryContainer = document.getElementById("gdrive-folder-gallery");
   const galleryTitle = document.getElementById("gdrive-gallery-title");
@@ -183,12 +178,13 @@ async function handleFetchGothTechiesFolder() {
         </div>
       `).join("");
     } else {
-      if (galleryCount) galleryCount.textContent = "LINK MODE ACTIVE";
+      if (galleryCount) galleryCount.textContent = "FOLDER ACTIVE";
       galleryGrid.innerHTML = `
         <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-2">
-          <p class="font-bold text-neon-cyan font-terminal">⚡ FOLDER STREAM READY: "0-GOTH TECHIES"</p>
+          <p class="font-bold text-neon-cyan font-terminal">⚡ GOOGLE DRIVE FOLDER CONNECTED</p>
           <p class="text-zinc-400 text-[11px] leading-relaxed">
-            Paste your Google Drive share link for folder <strong class="text-white font-mono">0-Goth Techies</strong> or individual image File IDs above to instantly stream and use them as your site logo.
+            Designated Image Drive Folder: <a href="${DEFAULT_DRIVE_FOLDER_URL}" target="_blank" class="text-neon-yellow underline font-mono break-all">${DEFAULT_DRIVE_FOLDER_URL}</a>.
+            All created images and site visuals are stored in and synced from this folder.
           </p>
         </div>
       `;
@@ -199,7 +195,7 @@ async function handleFetchGothTechiesFolder() {
     galleryGrid.innerHTML = `
       <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-1">
         <p class="font-bold text-neon-magenta font-terminal">STREAM READY</p>
-        <p class="text-zinc-400 text-[11px]">Paste any file ID or link from folder "0-Goth Techies" above to load.</p>
+        <p class="text-zinc-400 text-[11px]">Configured Drive Folder: <a href="${DEFAULT_DRIVE_FOLDER_URL}" target="_blank" class="text-neon-yellow underline font-mono break-all">${DEFAULT_DRIVE_FOLDER_URL}</a></p>
       </div>
     `;
   }
@@ -639,30 +635,12 @@ function applyImageSource() {
 
   const source = state.activeImageSource || "stock";
 
-  if (avatarImg) {
-    avatarImg.onerror = function() {
-      if (this.src.includes("images/Goth_Techieslogo.png")) {
-        this.src = "assets/images/Goth_Techieslogo.png";
-      } else {
-        this.onerror = null;
-        this.src = "images/Goth_Techieslogo.png";
-      }
-    };
-    avatarImg.src = "images/Goth_Techieslogo.png";
-    avatarImg.alt = "Goth Techies Logo Avatar";
+  if (avatarImg && avatarImg.tagName === "IMG") {
+    avatarImg.alt = "Goth Techies Avatar";
   }
 
-  if (portraitImg) {
-    portraitImg.onerror = function() {
-      if (this.src.includes("images/Goth_Techieslogo.png")) {
-        this.src = "assets/images/Goth_Techieslogo.png";
-      } else {
-        this.onerror = null;
-        this.src = "images/Goth_Techieslogo.png";
-      }
-    };
-    portraitImg.src = "images/Goth_Techieslogo.png";
-    portraitImg.alt = "Goth Techies Logo Portrait";
+  if (portraitImg && portraitImg.tagName === "IMG") {
+    portraitImg.alt = "Goth Techies Portrait";
   }
 
   // Update button styles

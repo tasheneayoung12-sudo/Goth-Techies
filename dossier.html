@@ -40,7 +40,6 @@
     <!-- END OF SEO METADATA -->
     <!-- ========================================== -->
     
-    <link rel="icon" type="image/png" href="images/Goth_Techieslogo.png" />
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -89,7 +88,9 @@
       <header class="sticky top-0 z-40 bg-cyber-black/95 backdrop-blur-md border-b border-neon-cyan/20 px-4 py-2.5 flex flex-col md:flex-row gap-3 items-center justify-between font-terminal text-xs text-neon-cyan select-none transition-all duration-300">
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
           <div class="flex items-center gap-2.5 cursor-pointer" onclick="playCyberSound('click'); window.location.href='index.html'">
-            <img src="images/Goth_Techieslogo.png" onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png'" alt="Goth Techies Logo" class="w-8 h-8 rounded-full border border-neon-magenta/60 shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+            <div class="w-8 h-8 rounded-full border border-neon-magenta/60 bg-cyber-dark shadow-[0_0_12px_rgba(255,0,127,0.5)] flex items-center justify-center text-neon-magenta hover:scale-105 transition-transform">
+              <i data-lucide="terminal" class="w-4 h-4 text-neon-magenta"></i>
+            </div>
             <div class="flex flex-col">
               <span class="font-bold tracking-widest text-neon-magenta text-sm font-terminal leading-none">GOTH TECHIES</span>
               <span class="text-[9px] text-neon-cyan/70 font-mono tracking-tighter">BEE_NET://TASHIBEE</span>
@@ -186,14 +187,9 @@
 
                 <!-- Avatar Box -->
                 <div class="relative w-40 h-40 mb-6 flex items-center justify-center border-2 border-neon-magenta rounded-full bg-cyber-black p-1 shadow-[0_0_15px_rgba(255,0,255,0.25)] overflow-hidden">
-                  <img
-                    id="profile-avatar-img"
-                    src="images/Goth_Techieslogo.png"
-                    onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png';"
-                    alt="Goth Techies Logo Avatar"
-                    class="w-full h-full object-cover rounded-full z-10"
-                    referrerpolicy="no-referrer"
-                  />
+                  <div id="profile-avatar-img" class="w-full h-full flex flex-col items-center justify-center bg-cyber-dark text-neon-magenta rounded-full z-10">
+                    <i data-lucide="user" class="w-16 h-16 text-neon-magenta"></i>
+                  </div>
                   <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-20"></div>
                   <div class="absolute bottom-2 left-0 right-0 text-center z-30">
                     <span class="font-terminal text-[10px] tracking-widest text-neon-cyan font-bold bg-black/80 px-2 py-0.5 rounded border border-neon-cyan/30">TASHIE_XD</span>
@@ -298,14 +294,10 @@
                       <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-neon-cyan z-20"></div>
                       <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-neon-cyan z-20"></div>
                       <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-neon-cyan z-20"></div>
-                      <img
-                        id="profile-portrait-img"
-                        src="images/Goth_Techieslogo.png"
-                        onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png';"
-                        alt="Goth Techies Logo Portrait"
-                        class="w-full h-auto object-cover rounded-md border border-zinc-800 transition-all duration-300 group-hover:scale-105"
-                        referrerpolicy="no-referrer"
-                      />
+                      <div id="profile-portrait-img" class="w-full h-52 flex flex-col items-center justify-center bg-cyber-dark text-neon-cyan rounded-md border border-zinc-800 gap-2">
+                        <i data-lucide="cpu" class="w-12 h-12 text-neon-cyan"></i>
+                        <span class="font-terminal text-[10px] text-neon-cyan/70 tracking-widest">DOSSIER_ARCHIVE</span>
+                      </div>
                     </div>
                   </div>
                   <!-- Bio Text -->
@@ -433,7 +425,9 @@
           
           <div class="flex flex-col gap-2 max-w-md">
             <div class="flex items-center justify-center md:justify-start gap-3 text-neon-yellow">
-              <img src="images/Goth_Techieslogo.png" onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png'" alt="Goth Techies Logo" class="w-10 h-10 rounded-full border border-neon-magenta shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover" referrerpolicy="no-referrer" />
+              <div class="w-10 h-10 rounded-full border border-neon-magenta bg-cyber-dark shadow-[0_0_12px_rgba(255,0,127,0.5)] flex items-center justify-center text-neon-magenta">
+                <i data-lucide="terminal" class="w-5 h-5 text-neon-magenta"></i>
+              </div>
               <div class="flex flex-col">
                 <span class="font-bold tracking-widest text-neon-magenta text-sm font-terminal leading-tight">GOTH TECHIES</span>
                 <span class="text-[10px] text-neon-yellow font-mono tracking-wider">TASHIBEE // CYBER_HIVE</span>
