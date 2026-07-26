@@ -40,6 +40,7 @@
     <!-- END OF SEO METADATA -->
     <!-- ========================================== -->
     
+    <link rel="icon" type="image/png" href="images/Goth_Techieslogo.png" />
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -88,7 +89,7 @@
       <header class="sticky top-0 z-40 bg-cyber-black/95 backdrop-blur-md border-b border-neon-cyan/20 px-4 py-2.5 flex flex-col md:flex-row gap-3 items-center justify-between font-terminal text-xs text-neon-cyan select-none transition-all duration-300">
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
           <div class="flex items-center gap-2.5 cursor-pointer" onclick="playCyberSound('click'); window.location.href='index.html'">
-            <img src="/assets/images/goth_techies_logo.jpg" onerror="this.onerror=null; this.src='/assets/images/goth_techies_logo.jpg'" alt="Goth Techies Logo" class="w-8 h-8 rounded-full border border-neon-magenta/60 shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+            <img src="images/Goth_Techieslogo.png" onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png'" alt="Goth Techies Logo" class="w-8 h-8 rounded-full border border-neon-magenta/60 shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
             <div class="flex flex-col">
               <span class="font-bold tracking-widest text-neon-magenta text-sm font-terminal leading-none">GOTH TECHIES</span>
               <span class="text-[9px] text-neon-cyan/70 font-mono tracking-tighter">BEE_NET://TASHIBEE</span>
@@ -298,8 +299,8 @@
               </div>
             </div>
 
-            <!-- Right panel: Active buffer Diagnostics -->
-            <div class="lg:col-span-4 lg:sticky lg:top-24">
+            <!-- Right panel: Active buffer Diagnostics & Google Drive Image Streamer -->
+            <div class="lg:col-span-4 lg:sticky lg:top-24 flex flex-col gap-6">
               <div id="log-diagnostics-details" class="border border-neon-cyan/35 bg-cyber-black rounded-lg p-5 border-glow-cyan flex flex-col gap-4 text-xs font-mono relative overflow-hidden">
                 <div class="border border-white/5 bg-cyber-dark/40 rounded-lg p-8 flex flex-col justify-center items-center text-center text-zinc-500 font-terminal gap-4.5 min-h-[340px]">
                   <div class="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center bg-black/20 text-zinc-600 animate-pulse">
@@ -311,6 +312,77 @@
                       Select any project, AI experiment, or student logging protocol from the Data Vault directory file listing to boot diagnostics.
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <!-- GOOGLE DRIVE IMAGE STREAMER & FOLDER VIEWER -->
+              <div class="border border-neon-magenta/40 bg-cyber-black/90 rounded-xl p-5 shadow-[0_0_20px_rgba(255,0,127,0.15)] flex flex-col gap-4 text-xs font-mono">
+                <div class="flex items-center justify-between border-b border-neon-magenta/20 pb-3">
+                  <div class="flex items-center gap-2 text-neon-magenta font-terminal font-bold text-sm uppercase">
+                    <i data-lucide="hard-drive" class="w-4 h-4 text-neon-cyan"></i>
+                    <span>GOOGLE DRIVE STREAMER: 0-GOTH TECHIES</span>
+                  </div>
+                  <span class="px-2 py-0.5 text-[9px] bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 rounded font-mono">BACKEND & FRONTEND</span>
+                </div>
+
+                <p class="text-zinc-400 font-sans text-xs">
+                  Stream images directly from your Google Drive folder <strong class="text-neon-cyan font-mono">0-Goth Techies</strong> or paste any Google Drive link/File ID below.
+                </p>
+
+                <div class="flex flex-col gap-2">
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      id="gdrive-url-input"
+                      placeholder="Paste 0-Goth Techies Google Drive link, Folder link, or File ID..."
+                      class="flex-1 bg-cyber-dark border border-white/15 focus:border-neon-cyan text-slate-100 px-3 py-2 rounded text-xs font-mono outline-none transition-colors"
+                    />
+                    <button
+                      onclick="handleLoadDriveImage()"
+                      class="px-4 py-2 bg-neon-magenta/20 hover:bg-neon-magenta text-neon-magenta hover:text-black border border-neon-magenta rounded font-terminal font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0"
+                    >
+                      <i data-lucide="image" class="w-4 h-4"></i> LOAD IMAGE
+                    </button>
+                  </div>
+
+                  <button
+                    onclick="handleFetchGothTechiesFolder()"
+                    class="w-full py-2 bg-neon-cyan/15 hover:bg-neon-cyan hover:text-black text-neon-cyan border border-neon-cyan/50 rounded font-terminal font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <i data-lucide="folder-open" class="w-4 h-4"></i> FETCH "0-GOTH TECHIES" FOLDER IMAGES
+                  </button>
+                </div>
+
+                <!-- Drive Preview Box -->
+                <div id="gdrive-preview-container" class="hidden flex flex-col gap-3 p-3 bg-cyber-dark/80 border border-white/10 rounded-lg">
+                  <div class="relative max-h-64 overflow-hidden rounded border border-zinc-800 bg-black flex items-center justify-center">
+                    <img id="gdrive-preview-img" src="" alt="Google Drive Loaded Image" class="max-h-60 w-auto object-contain rounded" referrerpolicy="no-referrer" />
+                  </div>
+                  <div class="flex flex-col gap-1.5 text-[11px]">
+                    <div class="flex items-center justify-between text-zinc-400">
+                      <span>Extracted File ID:</span>
+                      <span id="gdrive-file-id" class="text-neon-cyan font-mono font-bold"></span>
+                    </div>
+                    <div class="flex items-center justify-between text-zinc-400">
+                      <span>Backend Proxy Stream:</span>
+                      <a id="gdrive-proxy-link" href="#" target="_blank" class="text-neon-yellow underline truncate max-w-[180px]"></a>
+                    </div>
+                    <button
+                      id="gdrive-set-logo-btn"
+                      class="mt-1 w-full py-1.5 bg-neon-magenta text-black font-terminal font-bold rounded text-xs hover:bg-white transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> SET AS SITE LOGO & MAIN IMAGE
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Folder Gallery Container -->
+                <div id="gdrive-folder-gallery" class="hidden flex flex-col gap-3 p-3 bg-cyber-dark/90 border border-neon-cyan/30 rounded-lg">
+                  <div class="flex items-center justify-between text-xs font-terminal text-neon-cyan border-b border-white/10 pb-2">
+                    <span id="gdrive-gallery-title">0-GOTH TECHIES IMAGES</span>
+                    <span id="gdrive-gallery-count" class="text-zinc-400 font-mono text-[10px]"></span>
+                  </div>
+                  <div id="gdrive-gallery-grid" class="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1"></div>
                 </div>
               </div>
             </div>
@@ -327,7 +399,7 @@
           
           <div class="flex flex-col gap-2 max-w-md">
             <div class="flex items-center justify-center md:justify-start gap-3 text-neon-yellow">
-              <img src="/assets/images/goth_techies_logo.jpg" onerror="this.onerror=null; this.src='/assets/images/goth_techies_logo.jpg'" alt="Goth Techies Logo" class="w-10 h-10 rounded-full border border-neon-magenta shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover" referrerpolicy="no-referrer" />
+              <img src="images/Goth_Techieslogo.png" onerror="this.onerror=null; this.src='assets/images/Goth_Techieslogo.png'" alt="Goth Techies Logo" class="w-10 h-10 rounded-full border border-neon-magenta shadow-[0_0_12px_rgba(255,0,127,0.5)] object-cover" referrerpolicy="no-referrer" />
               <div class="flex flex-col">
                 <span class="font-bold tracking-widest text-neon-magenta text-sm font-terminal leading-tight">GOTH TECHIES</span>
                 <span class="text-[10px] text-neon-yellow font-mono tracking-wider">TASHIBEE // CYBER_HIVE</span>

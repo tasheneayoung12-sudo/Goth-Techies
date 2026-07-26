@@ -21,6 +21,191 @@ function getApiEndpoint(path) {
   return API_BASE_URL + cleanPath;
 }
 
+// Google Drive URL Parser & Image Converter Helper
+function parseGoogleDriveUrl(urlOrId) {
+  if (!urlOrId) return null;
+  const trimmed = String(urlOrId).trim();
+  let fileId = null;
+  if (/^[a-zA-Z0-9_-]{20,60}$/.test(trimmed)) {
+    fileId = trimmed;
+  } else {
+    const fileDMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileDMatch && fileDMatch[1]) {
+      fileId = fileDMatch[1];
+    } else {
+      const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (idMatch && idMatch[1]) fileId = idMatch[1];
+    }
+  }
+
+  if (!fileId) return null;
+
+  return {
+    fileId: fileId,
+    directUrl: `https://lh3.googleusercontent.com/d/${fileId}`,
+    thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+    proxyUrl: getApiEndpoint(`/api/drive/image/${fileId}`),
+    embedUrl: `https://drive.google.com/file/d/${fileId}/preview`
+  };
+}
+window.parseGoogleDriveUrl = parseGoogleDriveUrl;
+
+function applyStoredDriveLogo() {
+  try {
+    const storedUrl = localStorage.getItem("gdrive_active_logo_url");
+    if (!storedUrl) return;
+
+    const selectors = [
+      'img[alt*="Logo"]',
+      'img[alt*="Goth Techies"]',
+      'img[alt*="Avatar"]',
+      'img[alt*="Portrait"]',
+      '#profile-avatar-img',
+      '#profile-portrait-img'
+    ];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(img => {
+        img.src = storedUrl;
+        img.onerror = function() {
+          this.onerror = null;
+          this.src = "images/Goth_Techieslogo.png";
+        };
+      });
+    });
+  } catch (e) {
+    console.error("Failed to apply stored drive logo:", e);
+  }
+}
+
+function setAsActiveDriveLogo(urlOrId) {
+  const parsed = parseGoogleDriveUrl(urlOrId);
+  if (!parsed) return false;
+  try {
+    localStorage.setItem("gdrive_active_logo_url", parsed.proxyUrl);
+    localStorage.setItem("gdrive_active_file_id", parsed.fileId);
+    applyStoredDriveLogo();
+    if (typeof playCyberSound === "function") playCyberSound("success");
+    alert("⚡ Google Drive image from '0-Goth Techies' set as active site logo & main image!");
+    return true;
+  } catch (e) {
+    console.error("Failed to save active drive logo:", e);
+    return false;
+  }
+}
+window.setAsActiveDriveLogo = setAsActiveDriveLogo;
+window.applyStoredDriveLogo = applyStoredDriveLogo;
+
+function handleLoadDriveImage() {
+  if (typeof playCyberSound === "function") playCyberSound("click");
+  const input = document.getElementById("gdrive-url-input");
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) {
+    alert("Please paste a Google Drive image link or File ID from folder '0-Goth Techies'.");
+    return;
+  }
+  const parsed = parseGoogleDriveUrl(val);
+  if (!parsed) {
+    alert("Could not extract a valid Google Drive File ID. Make sure the link is from Google Drive.");
+    return;
+  }
+
+  const container = document.getElementById("gdrive-preview-container");
+  const img = document.getElementById("gdrive-preview-img");
+  const fileIdSpan = document.getElementById("gdrive-file-id");
+  const proxyLink = document.getElementById("gdrive-proxy-link");
+  const applyBtn = document.getElementById("gdrive-set-logo-btn");
+
+  if (container && img && fileIdSpan && proxyLink) {
+    container.classList.remove("hidden");
+    img.src = parsed.proxyUrl;
+    img.onerror = function() {
+      this.onerror = null;
+      this.src = parsed.directUrl;
+    };
+    fileIdSpan.textContent = parsed.fileId;
+    proxyLink.href = parsed.proxyUrl;
+    proxyLink.textContent = parsed.proxyUrl;
+
+    if (applyBtn) {
+      applyBtn.onclick = () => setAsActiveDriveLogo(parsed.fileId);
+    }
+  }
+
+  // Automatically apply as site logo if explicitly loaded
+  setAsActiveDriveLogo(parsed.fileId);
+}
+window.handleLoadDriveImage = handleLoadDriveImage;
+
+async function handleFetchGothTechiesFolder() {
+  if (typeof playCyberSound === "function") playCyberSound("click");
+  const input = document.getElementById("gdrive-url-input");
+  const folderVal = input ? input.value.trim() : "";
+  const targetFolder = folderVal || "0-Goth Techies";
+
+  const galleryContainer = document.getElementById("gdrive-folder-gallery");
+  const galleryTitle = document.getElementById("gdrive-gallery-title");
+  const galleryCount = document.getElementById("gdrive-gallery-count");
+  const galleryGrid = document.getElementById("gdrive-gallery-grid");
+
+  if (!galleryContainer || !galleryGrid) return;
+
+  galleryContainer.classList.remove("hidden");
+  if (galleryTitle) galleryTitle.textContent = `FOLDER: ${targetFolder.toUpperCase()}`;
+  if (galleryCount) galleryCount.textContent = "SEARCHING...";
+  galleryGrid.innerHTML = `
+    <div class="col-span-2 p-4 text-center text-zinc-400 font-mono text-xs flex flex-col items-center justify-center gap-2">
+      <div class="w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+      <span>Querying Google Drive for folder "${targetFolder}"...</span>
+    </div>
+  `;
+
+  try {
+    const res = await fetch(`/api/drive/folder?folder=${encodeURIComponent(targetFolder)}`);
+    const data = await res.json();
+
+    if (data.status === "success" && data.files && data.files.length > 0) {
+      if (galleryCount) galleryCount.textContent = `${data.files.length} IMAGES FOUND`;
+      galleryGrid.innerHTML = data.files.map(file => `
+        <div class="border border-white/10 bg-black/60 rounded p-2 flex flex-col gap-1.5 hover:border-neon-cyan transition-colors">
+          <div class="relative h-24 overflow-hidden rounded bg-black flex items-center justify-center">
+            <img src="${file.proxyUrl}" alt="${file.name || 'Drive Image'}" class="max-h-24 w-auto object-contain rounded" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${file.directUrl}';" />
+          </div>
+          <div class="flex flex-col gap-1 text-[10px]">
+            <span class="text-zinc-200 truncate font-mono">${file.name || file.id}</span>
+            <div class="flex items-center justify-between gap-1">
+              <a href="${file.proxyUrl}" target="_blank" class="text-neon-cyan underline truncate">Stream</a>
+              <button onclick="setAsActiveDriveLogo('${file.id}')" class="px-1.5 py-0.5 bg-neon-magenta/20 hover:bg-neon-magenta text-neon-magenta hover:text-black border border-neon-magenta/50 rounded font-mono text-[9px] cursor-pointer">
+                USE AS LOGO
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    } else {
+      if (galleryCount) galleryCount.textContent = "LINK MODE ACTIVE";
+      galleryGrid.innerHTML = `
+        <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-2">
+          <p class="font-bold text-neon-cyan font-terminal">⚡ FOLDER STREAM READY: "0-GOTH TECHIES"</p>
+          <p class="text-zinc-400 text-[11px] leading-relaxed">
+            Paste your Google Drive share link for folder <strong class="text-white font-mono">0-Goth Techies</strong> or individual image File IDs above to instantly stream and use them as your site logo.
+          </p>
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error("Failed to fetch folder:", err);
+    if (galleryCount) galleryCount.textContent = "READY";
+    galleryGrid.innerHTML = `
+      <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-1">
+        <p class="font-bold text-neon-magenta font-terminal">STREAM READY</p>
+        <p class="text-zinc-400 text-[11px]">Paste any file ID or link from folder "0-Goth Techies" above to load.</p>
+      </div>
+    `;
+  }
+}
+window.handleFetchGothTechiesFolder = handleFetchGothTechiesFolder;
+
 // Web Audio API Synthesizer (Cyber Sound System)
 let audioCtx = null;
 let isMuted = false;
@@ -456,24 +641,28 @@ function applyImageSource() {
 
   if (avatarImg) {
     avatarImg.onerror = function() {
-      this.onerror = null;
-      this.src = "/assets/images/goth_techies_logo.jpg";
+      if (this.src.includes("images/Goth_Techieslogo.png")) {
+        this.src = "assets/images/Goth_Techieslogo.png";
+      } else {
+        this.onerror = null;
+        this.src = "images/Goth_Techieslogo.png";
+      }
     };
-    avatarImg.src = source === "stock" 
-      ? "/assets/images/stock_goth_avatar_1783792279555.jpg" 
-      : "/assets/images/Profile_pic.jpg";
-    avatarImg.alt = source === "stock" ? "Cyber-Goth Stock Avatar" : "Tashenea's Uploaded Avatar";
+    avatarImg.src = "images/Goth_Techieslogo.png";
+    avatarImg.alt = "Goth Techies Logo Avatar";
   }
 
   if (portraitImg) {
     portraitImg.onerror = function() {
-      this.onerror = null;
-      this.src = "/assets/images/goth_techies_logo.jpg";
+      if (this.src.includes("images/Goth_Techieslogo.png")) {
+        this.src = "assets/images/Goth_Techieslogo.png";
+      } else {
+        this.onerror = null;
+        this.src = "images/Goth_Techieslogo.png";
+      }
     };
-    portraitImg.src = source === "stock" 
-      ? "/assets/images/stock_goth_portrait_1783792292032.jpg" 
-      : "/assets/images/Profile_pic.jpg";
-    portraitImg.alt = source === "stock" ? "Cyber-Goth Stock Portrait" : "Tashenea's Uploaded Portrait";
+    portraitImg.src = "images/Goth_Techieslogo.png";
+    portraitImg.alt = "Goth Techies Logo Portrait";
   }
 
   // Update button styles
@@ -601,6 +790,7 @@ function initializePageComponents() {
   startClock();
   loadPersistentData();
   updateHackerStatusUI();
+  applyStoredDriveLogo();
   
   // Render & Execute Footer Diagnostic Panel
   renderFooterDiagnosticPanel();
