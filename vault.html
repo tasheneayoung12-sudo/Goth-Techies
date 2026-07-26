@@ -198,9 +198,103 @@
                 <button onclick="filterArchive('VALUES')" data-filter-btn="VALUES" class="px-3 py-1.5 border rounded cursor-pointer transition-all border-white/10 hover:border-white/25 text-zinc-400 bg-cyber-black/40">✝️ PURPOSES // VALUES</button>
               </div>
 
+              <!-- Coding Sub-navigation Rail -->
+              <div id="coding-subtabs-bar" class="flex flex-wrap items-center justify-between gap-2 p-2 bg-black/60 border border-neon-cyan/25 rounded-lg text-xs font-mono select-none my-1">
+                <div class="flex items-center gap-2">
+                  <button id="subtab-btn-list" onclick="switchCodingSubTab('list')" class="px-3 py-1.5 rounded font-terminal font-bold transition-all bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/50 shadow-[0_0_8px_rgba(0,245,255,0.2)] flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="folder-code" class="w-3.5 h-3.5"></i> 📁 CODING PROJECTS
+                  </button>
+                  <button id="subtab-btn-trex" onclick="switchCodingSubTab('trex')" class="px-3 py-1.5 rounded font-terminal font-bold transition-all text-zinc-400 hover:text-neon-yellow border border-white/10 hover:border-neon-yellow/40 bg-black/40 flex items-center gap-2 cursor-pointer group">
+                    <span>🦖 T-REX GAME (DINO RUN)</span>
+                    <span class="px-1.5 py-0.5 text-[9px] bg-neon-magenta/20 text-neon-magenta border border-neon-magenta/40 rounded animate-pulse group-hover:bg-neon-magenta group-hover:text-black">PLAY NOW</span>
+                  </button>
+                </div>
+                <span class="text-[10px] text-zinc-500 font-mono hidden sm:inline-block">MODULE://CANVAS_DINO_ENGINE</span>
+              </div>
+
               <!-- Dynamic Log row boxes -->
               <div id="archive-logs-list" class="flex flex-col gap-3 min-h-[300px]">
                 <!-- Injected dynamically by script.js on load / filter -->
+              </div>
+
+              <!-- Interactive T-Rex Game Workspace Container (Shown when T-Rex subtab selected) -->
+              <div id="trex-game-workspace" class="hidden border border-neon-cyan/40 bg-cyber-black/90 rounded-xl p-4 sm:p-6 shadow-[0_0_25px_rgba(0,245,255,0.15)] relative overflow-hidden flex flex-col gap-5">
+                <!-- Glowing header bar -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-neon-magenta/10 border border-neon-magenta/40 flex items-center justify-center text-neon-magenta font-bold text-xl shadow-[0_0_10px_rgba(255,0,127,0.3)]">
+                      🦖
+                    </div>
+                    <div>
+                      <h3 class="text-base sm:text-lg font-terminal font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>T-REX DINO RUN // GOOGLE DINO GAME</span>
+                        <span class="px-2 py-0.5 text-[9px] font-mono bg-neon-green/20 text-neon-green border border-neon-green/40 rounded uppercase tracking-widest">INTERACTIVE</span>
+                      </h3>
+                      <p class="text-xs font-sans text-zinc-400">
+                        Classic Chrome T-Rex Runner built in HTML5 Canvas with Cyber-Goth graphics, Web Audio synthesis & high-score tracking.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <!-- Score board badges -->
+                  <div class="flex items-center gap-2 font-mono text-xs">
+                    <div class="px-3 py-1.5 rounded bg-black/60 border border-neon-cyan/30 text-neon-cyan flex items-center gap-2">
+                      <span class="text-zinc-500 text-[10px]">SCORE:</span>
+                      <span id="trex-score-val" class="font-bold text-sm tracking-widest">00000</span>
+                    </div>
+                    <div class="px-3 py-1.5 rounded bg-black/60 border border-neon-yellow/30 text-neon-yellow flex items-center gap-2">
+                      <span class="text-zinc-500 text-[10px]">HIGH:</span>
+                      <span id="trex-hi-val" class="font-bold text-sm tracking-widest">00000</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="relative w-full overflow-hidden rounded-lg border-2 border-neon-cyan/40 bg-cyber-black shadow-[0_0_20px_rgba(0,245,255,0.2)] group select-none">
+                  <canvas id="trex-game-canvas" width="600" height="200" class="w-full h-auto block cursor-pointer transition-opacity group-hover:opacity-95"></canvas>
+                </div>
+
+                <!-- On-Screen Controls Rail for Touch & Quick Mouse Click -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-terminal text-xs">
+                  <button onclick="window.triggerTRexJump()" class="py-3 px-4 bg-neon-cyan/15 hover:bg-neon-cyan/30 text-neon-cyan border border-neon-cyan/40 rounded-lg font-bold transition-all shadow-[0_0_10px_rgba(0,245,255,0.2)] active:scale-95 cursor-pointer flex items-center justify-center gap-2 select-none">
+                    <i data-lucide="arrow-big-up" class="w-4 h-4"></i> JUMP [SPACE / ⬆]
+                  </button>
+                  
+                  <button onmousedown="window.triggerTRexDuck(true)" onmouseup="window.triggerTRexDuck(false)" ontouchstart="window.triggerTRexDuck(true)" ontouchend="window.triggerTRexDuck(false)" class="py-3 px-4 bg-neon-purple/15 hover:bg-neon-purple/30 text-neon-purple border border-neon-purple/40 rounded-lg font-bold transition-all shadow-[0_0_10px_rgba(157,78,221,0.2)] active:scale-95 cursor-pointer flex items-center justify-center gap-2 select-none">
+                    <i data-lucide="arrow-big-down" class="w-4 h-4"></i> DUCK [DOWN / ⬇]
+                  </button>
+
+                  <button onclick="window.startTRexGame()" class="py-3 px-4 bg-neon-magenta/15 hover:bg-neon-magenta/30 text-neon-magenta border border-neon-magenta/40 rounded-lg font-bold transition-all shadow-[0_0_10px_rgba(255,0,127,0.2)] active:scale-95 cursor-pointer flex items-center justify-center gap-2 select-none">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> REBOOT / START
+                  </button>
+
+                  <button onclick="window.toggleTRexTheme()" class="py-3 px-4 bg-black/60 hover:bg-black/80 text-neon-yellow border border-neon-yellow/30 rounded-lg font-bold transition-all hover:border-neon-yellow/60 cursor-pointer flex items-center justify-center gap-2 select-none">
+                    <i data-lucide="palette" class="w-4 h-4"></i> THEME TOGGLE
+                  </button>
+                </div>
+
+                <!-- Instructions & Specs Footer -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/5 text-xs font-mono text-zinc-400">
+                  <div class="p-3 bg-cyber-dark/40 border border-white/5 rounded-lg flex flex-col gap-1.5">
+                    <div class="text-white font-bold flex items-center gap-1.5 uppercase font-terminal text-[11px]">
+                      <i data-lucide="keyboard" class="w-3.5 h-3.5 text-neon-cyan"></i> KEYBOARD & TOUCH CONTROLS
+                    </div>
+                    <ul class="space-y-1 text-zinc-400 text-[11px] font-sans">
+                      <li>• <strong class="text-neon-cyan">SPACEBAR / UP ARROW / TAP:</strong> Jump over cacti & cyber spikes</li>
+                      <li>• <strong class="text-neon-purple">DOWN ARROW / S KEY:</strong> Duck under flying drones</li>
+                      <li>• <strong class="text-neon-yellow">SPEED ACCELERATION:</strong> Game speed gradually increases as distance score grows</li>
+                    </ul>
+                  </div>
+
+                  <div class="p-3 bg-cyber-dark/40 border border-white/5 rounded-lg flex flex-col gap-1.5">
+                    <div class="text-white font-bold flex items-center gap-1.5 uppercase font-terminal text-[11px]">
+                      <i data-lucide="cpu" class="w-3.5 h-3.5 text-neon-magenta"></i> GAME ENGINE SPECS
+                    </div>
+                    <p class="text-zinc-400 text-[11px] font-sans leading-relaxed">
+                      Built in standard 60 FPS HTML5 Canvas with custom AABB collision hitboxes, particle physics, Web Audio synthesizer jump SFX, and high scores saved to local storage.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 

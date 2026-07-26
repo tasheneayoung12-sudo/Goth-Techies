@@ -280,6 +280,34 @@ const state = {
       </div>`
     },
     {
+      id: "arch_trex",
+      hash: "0x7R3X99",
+      title: "T-Rex Game - Google Dino Run (Cyber-Goth Edition)",
+      category: "CODING",
+      date: "2026-07-25",
+      description: "Playable recreation of the famous Chrome Dino Runner. Jump over cacti & cyber spikes, duck under flying drones, and track high scores in real-time.",
+      tags: ["HTML5 Canvas", "JavaScript", "Arcade Game", "Physics Engine", "Web Audio"],
+      status: "PLAYABLE",
+      extendedLog: "Full physics state engine compiled with 60 FPS requestAnimationFrame loop, collision detection hitboxes, Web Audio synthesizer jump SFX, mobile touch gesture controls, and persistent high scores stored in browser memory.",
+      embedHtml: `<div class="mt-4 border-t border-white/5 pt-4">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-neon-yellow uppercase font-bold tracking-wider text-[11px] flex items-center gap-1.5">
+            <span class="inline-block w-2 h-2 rounded-full bg-neon-yellow animate-ping"></span>
+            INTERACTIVE_ARCADE_SIMULATION
+          </span>
+          <button onclick="window.switchCodingSubTab('trex')" class="px-3 py-1 bg-neon-magenta/20 hover:bg-neon-magenta/40 text-neon-magenta border border-neon-magenta/50 rounded text-xs font-terminal tracking-wider transition-all shadow-[0_0_10px_rgba(255,0,127,0.3)] cursor-pointer flex items-center gap-1.5">
+            <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> LAUNCH FULLSCREEN GAME
+          </button>
+        </div>
+        <div class="bg-black/60 border border-neon-cyan/30 rounded-lg p-3 text-center">
+          <p class="text-xs text-zinc-300 font-sans mb-3">Click below to launch the interactive T-Rex Runner game in the Coding workspace!</p>
+          <button onclick="window.switchCodingSubTab('trex')" class="w-full py-2.5 bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-cyan text-white font-terminal font-bold rounded tracking-widest uppercase hover:brightness-110 shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer text-xs">
+            🦖 PLAY T-REX DINO RUN NOW
+          </button>
+        </div>
+      </div>`
+    },
+    {
       id: "arch_02",
       hash: "0x3A2B5E",
       title: "Sacred Code AI Wisdom Parser",
@@ -1077,6 +1105,12 @@ function initArchive() {
     `;
     lucide.createIcons();
   }
+
+  // Check URL params for T-Rex Game deep link
+  if (window.location.hash === "#trex" || window.location.search.includes("trex") || window.location.search.includes("dino")) {
+    filterArchive("CODING");
+    switchCodingSubTab("trex");
+  }
 }
 
 function filterArchive(filter) {
@@ -1093,12 +1127,29 @@ function filterArchive(filter) {
     }
   });
 
-  // Re-render logs list
-  renderArchiveLogsList();
+  const subtabsBar = document.getElementById("coding-subtabs-bar");
+  if (subtabsBar) {
+    if (filter === "CODING" || filter === "ALL") {
+      subtabsBar.classList.remove("hidden");
+    } else {
+      subtabsBar.classList.add("hidden");
+    }
+  }
+
+  if (codingSubTab === "trex" && (filter === "CODING" || filter === "ALL")) {
+    switchCodingSubTab("trex");
+  } else {
+    const gameWorkspace = document.getElementById("trex-game-workspace");
+    const logsList = document.getElementById("archive-logs-list");
+    if (gameWorkspace) gameWorkspace.classList.add("hidden");
+    if (logsList) logsList.classList.remove("hidden");
+    renderArchiveLogsList();
+  }
 }
 
 function renderArchiveLogsList() {
   const container = document.getElementById("archive-logs-list");
+  if (!container) return;
   container.innerHTML = "";
 
   const filtered = selectedFilter === "ALL" 
@@ -1117,6 +1168,7 @@ function renderArchiveLogsList() {
     let statusClass = "border-zinc-500 text-zinc-500 bg-zinc-500/5";
     if (log.status === "EXECUTING") statusClass = "border-neon-green/30 text-neon-green bg-neon-green/5 animate-pulse";
     if (log.status === "COMPILED") statusClass = "border-neon-cyan/25 text-neon-cyan bg-neon-cyan/5";
+    if (log.status === "PLAYABLE") statusClass = "border-neon-yellow/40 text-neon-yellow bg-neon-yellow/10 font-bold animate-pulse";
 
     div.innerHTML = `
       <div class="flex justify-between items-center text-[10px] sm:text-xs font-mono">
@@ -1135,15 +1187,16 @@ function renderArchiveLogsList() {
 
       <div class="flex justify-between items-start gap-4">
         <div>
-          <h3 class="text-sm md:text-base font-terminal font-bold uppercase text-white tracking-wide hover:text-neon-purple transition-colors">
-            ${log.title}
+          <h3 class="text-sm md:text-base font-terminal font-bold uppercase text-white tracking-wide hover:text-neon-purple transition-colors flex items-center gap-2">
+            <span>${log.title}</span>
+            ${log.id === "arch_trex" ? '<span class="px-1.5 py-0.2 bg-neon-magenta/20 text-neon-magenta text-[9px] rounded border border-neon-magenta/40">GAME</span>' : ''}
           </h3>
           <p class="text-xs font-sans text-zinc-400 mt-1 lines-clamp-2 leading-relaxed">
             ${log.description}
           </p>
         </div>
         <div class="p-2 border border-white/5 bg-black/40 rounded shrink-0">
-          <i data-lucide="eye" class="w-4 h-4 ${isActive ? 'text-neon-purple' : 'text-zinc-600'}"></i>
+          <i data-lucide="${log.id === "arch_trex" ? "gamepad-2" : "eye"}" class="w-4 h-4 ${isActive ? 'text-neon-purple' : 'text-zinc-600'}"></i>
         </div>
       </div>
     `;
@@ -1152,6 +1205,667 @@ function renderArchiveLogsList() {
     container.appendChild(div);
   });
   lucide.createIcons();
+}
+
+// ==========================================
+// T-REX GAME ENGINE (GOOGLE DINO RUN)
+// ==========================================
+
+let trexGame = {
+  canvas: null,
+  ctx: null,
+  animationId: null,
+  gameState: "READY", // "READY", "RUNNING", "GAMEOVER"
+  score: 0,
+  highScore: 0,
+  speed: 6,
+  distance: 0,
+  theme: "cyber", // "cyber" or "classic"
+  listenersAttached: false,
+  
+  dino: {
+    x: 40,
+    y: 126,
+    width: 40,
+    height: 44,
+    vy: 0,
+    gravity: 0.65,
+    jumpForce: -11.5,
+    isJumping: false,
+    isDucking: false,
+    legFrame: 0,
+    legTimer: 0
+  },
+  
+  obstacles: [],
+  obstacleTimer: 0,
+  particles: [],
+  clouds: []
+};
+
+function getTRexHighScore() {
+  try {
+    return parseInt(localStorage.getItem("goth_trex_highscore") || "0", 10);
+  } catch (_) {
+    return 0;
+  }
+}
+
+function setTRexHighScore(s) {
+  try {
+    localStorage.setItem("goth_trex_highscore", s.toString());
+  } catch (_) {}
+}
+
+function initTRexCanvas(canvasId = "trex-game-canvas") {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  
+  trexGame.canvas = canvas;
+  trexGame.ctx = canvas.getContext("2d");
+  trexGame.highScore = getTRexHighScore();
+  
+  if (!trexGame.listenersAttached) {
+    window.addEventListener("keydown", handleTRexKeyDown);
+    window.addEventListener("keyup", handleTRexKeyUp);
+    trexGame.listenersAttached = true;
+  }
+  
+  canvas.onmousedown = (e) => {
+    e.preventDefault();
+    triggerTRexJump();
+  };
+  canvas.ontouchstart = (e) => {
+    e.preventDefault();
+    triggerTRexJump();
+  };
+
+  resetTRexGameState();
+  drawTRexFrame();
+}
+
+function resetTRexGameState() {
+  if (trexGame.animationId) {
+    cancelAnimationFrame(trexGame.animationId);
+    trexGame.animationId = null;
+  }
+  
+  trexGame.gameState = "READY";
+  trexGame.score = 0;
+  trexGame.speed = 6;
+  trexGame.distance = 0;
+  trexGame.obstacles = [];
+  trexGame.obstacleTimer = 0;
+  trexGame.particles = [];
+  
+  trexGame.dino.x = 40;
+  trexGame.dino.y = 126;
+  trexGame.dino.width = 40;
+  trexGame.dino.height = 44;
+  trexGame.dino.vy = 0;
+  trexGame.dino.isJumping = false;
+  trexGame.dino.isDucking = false;
+  
+  trexGame.clouds = [
+    { x: 150, y: 30, speed: 0.5, size: 20 },
+    { x: 380, y: 50, speed: 0.3, size: 15 },
+    { x: 520, y: 25, speed: 0.4, size: 25 }
+  ];
+  
+  updateTRexScoreBoard();
+}
+
+function startTRexGame() {
+  if (trexGame.gameState === "RUNNING") return;
+  
+  resetTRexGameState();
+  trexGame.gameState = "RUNNING";
+  playCyberSound("click");
+  
+  let lastTime = performance.now();
+  
+  function loop(now) {
+    if (trexGame.gameState !== "RUNNING") return;
+    const dt = Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
+    
+    updateTRexGame(dt);
+    drawTRexFrame();
+    
+    trexGame.animationId = requestAnimationFrame(loop);
+  }
+  
+  trexGame.animationId = requestAnimationFrame(loop);
+}
+
+function triggerTRexJump() {
+  if (trexGame.gameState === "READY" || trexGame.gameState === "GAMEOVER") {
+    startTRexGame();
+    return;
+  }
+  
+  if (trexGame.gameState === "RUNNING" && !trexGame.dino.isJumping) {
+    trexGame.dino.vy = trexGame.dino.jumpForce;
+    trexGame.dino.isJumping = true;
+    playCyberSound("click");
+    
+    for (let i = 0; i < 5; i++) {
+      trexGame.particles.push({
+        x: trexGame.dino.x + 10,
+        y: 170,
+        vx: (Math.random() - 0.5) * 3,
+        vy: -Math.random() * 2,
+        life: 1,
+        color: trexGame.theme === "cyber" ? "#00f5ff" : "#888"
+      });
+    }
+  }
+}
+
+function triggerTRexDuck(isDucking) {
+  if (trexGame.gameState !== "RUNNING") return;
+  trexGame.dino.isDucking = isDucking;
+  
+  if (isDucking) {
+    if (trexGame.dino.isJumping) {
+      trexGame.dino.vy += 6;
+    }
+    trexGame.dino.width = 52;
+    trexGame.dino.height = 26;
+  } else {
+    trexGame.dino.width = 40;
+    trexGame.dino.height = 44;
+  }
+}
+
+function handleTRexKeyDown(e) {
+  const activeEl = document.activeElement;
+  if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) return;
+  
+  if (["Space", "ArrowUp", "ArrowDown", "KeyW", "KeyS"].includes(e.code)) {
+    const canvas = trexGame.canvas;
+    if (canvas && canvas.offsetParent !== null) {
+      e.preventDefault();
+    }
+  }
+  
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") {
+    triggerTRexJump();
+  } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+    triggerTRexDuck(true);
+  }
+}
+
+function handleTRexKeyUp(e) {
+  if (e.code === "ArrowDown" || e.code === "KeyS") {
+    triggerTRexDuck(false);
+  }
+}
+
+function updateTRexGame(dt) {
+  trexGame.speed += 0.0012;
+  trexGame.distance += trexGame.speed * 0.15;
+  const newScore = Math.floor(trexGame.distance);
+  
+  if (newScore > 0 && newScore % 100 === 0 && newScore !== trexGame.score) {
+    playCyberSound("hover");
+  }
+  
+  trexGame.score = newScore;
+  if (trexGame.score > trexGame.highScore) {
+    trexGame.highScore = trexGame.score;
+    setTRexHighScore(trexGame.highScore);
+  }
+  
+  updateTRexScoreBoard();
+  
+  const groundY = trexGame.dino.isDucking ? 144 : 126;
+  
+  trexGame.dino.y += trexGame.dino.vy;
+  trexGame.dino.vy += trexGame.dino.gravity;
+  
+  if (trexGame.dino.y >= groundY) {
+    trexGame.dino.y = groundY;
+    trexGame.dino.vy = 0;
+    trexGame.dino.isJumping = false;
+  }
+  
+  trexGame.dino.legTimer += 1;
+  if (trexGame.dino.legTimer > Math.max(2, 8 - Math.floor(trexGame.speed / 2))) {
+    trexGame.dino.legFrame = (trexGame.dino.legFrame + 1) % 2;
+    trexGame.dino.legTimer = 0;
+  }
+  
+  trexGame.obstacleTimer += 1;
+  const spawnThreshold = Math.max(45, 110 - Math.floor(trexGame.speed * 4) + Math.random() * 30);
+  
+  if (trexGame.obstacleTimer > spawnThreshold) {
+    trexGame.obstacleTimer = 0;
+    
+    const rand = Math.random();
+    let obsType = "cactus_small";
+    if (rand > 0.75 && trexGame.score > 150) {
+      obsType = "drone_fly";
+    } else if (rand > 0.45) {
+      obsType = "cactus_large";
+    } else if (rand > 0.3) {
+      obsType = "cactus_double";
+    }
+    
+    let obsWidth = 20;
+    let obsHeight = 40;
+    let obsY = 130;
+    
+    if (obsType === "cactus_small") {
+      obsWidth = 18;
+      obsHeight = 36;
+      obsY = 134;
+    } else if (obsType === "cactus_double") {
+      obsWidth = 36;
+      obsHeight = 38;
+      obsY = 132;
+    } else if (obsType === "cactus_large") {
+      obsWidth = 26;
+      obsHeight = 46;
+      obsY = 124;
+    } else if (obsType === "drone_fly") {
+      obsWidth = 36;
+      obsHeight = 24;
+      const alt = Math.random();
+      if (alt > 0.6) {
+        obsY = 90;
+      } else if (alt > 0.3) {
+        obsY = 115;
+      } else {
+        obsY = 138;
+      }
+    }
+    
+    trexGame.obstacles.push({
+      type: obsType,
+      x: 620,
+      y: obsY,
+      width: obsWidth,
+      height: obsHeight,
+      wingFrame: 0
+    });
+  }
+  
+  for (let i = trexGame.obstacles.length - 1; i >= 0; i--) {
+    const obs = trexGame.obstacles[i];
+    obs.x -= trexGame.speed;
+    
+    if (obs.type === "drone_fly") {
+      obs.wingFrame = (obs.wingFrame + 0.2) % 2;
+    }
+    
+    const dinoHitbox = {
+      x: trexGame.dino.x + 6,
+      y: trexGame.dino.y + 4,
+      w: trexGame.dino.width - 12,
+      h: trexGame.dino.height - 8
+    };
+    
+    const obsHitbox = {
+      x: obs.x + 4,
+      y: obs.y + 4,
+      w: obs.width - 8,
+      h: obs.height - 8
+    };
+    
+    if (
+      dinoHitbox.x < obsHitbox.x + obsHitbox.w &&
+      dinoHitbox.x + dinoHitbox.w > obsHitbox.x &&
+      dinoHitbox.y < obsHitbox.y + obsHitbox.h &&
+      dinoHitbox.y + dinoHitbox.h > obsHitbox.y
+    ) {
+      handleTRexGameOver();
+      return;
+    }
+    
+    if (obs.x + obs.width < -20) {
+      trexGame.obstacles.splice(i, 1);
+    }
+  }
+  
+  trexGame.clouds.forEach(cloud => {
+    cloud.x -= cloud.speed;
+    if (cloud.x < -60) cloud.x = 640;
+  });
+  
+  for (let i = trexGame.particles.length - 1; i >= 0; i--) {
+    const p = trexGame.particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.05;
+    if (p.life <= 0) trexGame.particles.splice(i, 1);
+  }
+}
+
+function handleTRexGameOver() {
+  trexGame.gameState = "GAMEOVER";
+  playCyberSound("glitch");
+  
+  for (let i = 0; i < 20; i++) {
+    trexGame.particles.push({
+      x: trexGame.dino.x + 20,
+      y: trexGame.dino.y + 20,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      life: 1,
+      color: Math.random() > 0.5 ? "#ff007f" : "#00f5ff"
+    });
+  }
+  
+  drawTRexFrame();
+}
+
+function drawTRexFrame() {
+  const ctx = trexGame.ctx;
+  if (!ctx) return;
+  
+  const w = 600;
+  const h = 200;
+  
+  ctx.fillStyle = trexGame.theme === "cyber" ? "#07070c" : "#f7f7f7";
+  ctx.fillRect(0, 0, w, h);
+  
+  if (trexGame.theme === "cyber") {
+    ctx.strokeStyle = "rgba(0, 245, 255, 0.05)";
+    ctx.lineWidth = 1;
+    for (let x = (trexGame.distance % 20) * -1; x < w; x += 20) {
+      ctx.beginPath();
+      ctx.moveTo(x, 170);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = "rgba(255, 0, 127, 0.3)";
+    ctx.beginPath();
+    ctx.arc(520, 45, 18, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    [ [100, 30], [240, 20], [350, 50], [450, 25] ].forEach(([sx, sy]) => {
+      ctx.fillRect(sx, sy, 2, 2);
+    });
+  }
+  
+  ctx.fillStyle = trexGame.theme === "cyber" ? "rgba(157, 78, 221, 0.2)" : "#ddd";
+  trexGame.clouds.forEach(c => {
+    ctx.fillRect(c.x, c.y, c.size * 1.8, 8);
+    ctx.fillRect(c.x + 4, c.y - 5, c.size * 1.2, 6);
+  });
+  
+  ctx.strokeStyle = trexGame.theme === "cyber" ? "#00f5ff" : "#535353";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 170);
+  ctx.lineTo(w, 170);
+  ctx.stroke();
+  
+  ctx.fillStyle = trexGame.theme === "cyber" ? "rgba(0, 245, 255, 0.4)" : "#888";
+  for (let x = (trexGame.distance * 1.5) % 30 * -1; x < w; x += 30) {
+    ctx.fillRect(x + 5, 175, 3, 2);
+    ctx.fillRect(x + 18, 182, 4, 2);
+    ctx.fillRect(x + 24, 173, 2, 2);
+  }
+  
+  trexGame.obstacles.forEach(obs => {
+    drawTRexObstacle(ctx, obs);
+  });
+  
+  drawTRexDino(ctx, trexGame.dino);
+  
+  trexGame.particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillRect(p.x, p.y, 4, 4);
+    ctx.globalAlpha = 1.0;
+  });
+  
+  drawTRexUI(ctx, w, h);
+}
+
+function drawTRexDino(ctx, dino) {
+  const isCyber = trexGame.theme === "cyber";
+  const primaryColor = isCyber ? "#00f5ff" : "#535353";
+  const eyeColor = isCyber ? "#ff007f" : "#ffffff";
+  
+  ctx.fillStyle = primaryColor;
+  
+  if (dino.isDucking) {
+    ctx.fillRect(dino.x, dino.y + 8, 44, 18);
+    ctx.fillRect(dino.x + 30, dino.y, 22, 14);
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(dino.x + 42, dino.y + 3, 3, 3);
+    ctx.fillStyle = primaryColor;
+    ctx.fillRect(dino.x - 8, dino.y + 10, 10, 6);
+    if (trexGame.gameState === "RUNNING") {
+      if (Math.floor(dino.legFrame) === 0) {
+        ctx.fillRect(dino.x + 10, dino.y + 24, 6, 8);
+        ctx.fillRect(dino.x + 26, dino.y + 24, 6, 4);
+      } else {
+        ctx.fillRect(dino.x + 10, dino.y + 24, 6, 4);
+        ctx.fillRect(dino.x + 26, dino.y + 24, 6, 8);
+      }
+    } else {
+      ctx.fillRect(dino.x + 12, dino.y + 24, 6, 8);
+      ctx.fillRect(dino.x + 24, dino.y + 24, 6, 8);
+    }
+  } else {
+    ctx.fillRect(dino.x + 18, dino.y, 22, 18);
+    ctx.fillRect(dino.x + 22, dino.y + 12, 18, 6);
+    ctx.fillStyle = eyeColor;
+    if (trexGame.gameState === "GAMEOVER") {
+      ctx.fillRect(dino.x + 28, dino.y + 4, 4, 4);
+    } else {
+      ctx.fillRect(dino.x + 30, dino.y + 4, 3, 3);
+    }
+    ctx.fillStyle = primaryColor;
+    
+    if (isCyber) {
+      ctx.fillStyle = "#ff007f";
+      ctx.fillRect(dino.x + 16, dino.y + 16, 8, 3);
+      ctx.fillStyle = primaryColor;
+    }
+    
+    ctx.fillRect(dino.x + 10, dino.y + 18, 22, 18);
+    ctx.fillRect(dino.x, dino.y + 20, 12, 8);
+    ctx.fillRect(dino.x - 4, dino.y + 18, 6, 6);
+    ctx.fillRect(dino.x + 28, dino.y + 22, 6, 3);
+    
+    if (dino.isJumping) {
+      ctx.fillRect(dino.x + 12, dino.y + 36, 5, 5);
+      ctx.fillRect(dino.x + 22, dino.y + 36, 5, 5);
+    } else if (trexGame.gameState === "RUNNING") {
+      if (dino.legFrame === 0) {
+        ctx.fillRect(dino.x + 12, dino.y + 36, 5, 8);
+        ctx.fillRect(dino.x + 22, dino.y + 36, 5, 4);
+      } else {
+        ctx.fillRect(dino.x + 12, dino.y + 36, 5, 4);
+        ctx.fillRect(dino.x + 22, dino.y + 36, 5, 8);
+      }
+    } else {
+      ctx.fillRect(dino.x + 12, dino.y + 36, 5, 8);
+      ctx.fillRect(dino.x + 22, dino.y + 36, 5, 8);
+    }
+  }
+}
+
+function drawTRexObstacle(ctx, obs) {
+  const isCyber = trexGame.theme === "cyber";
+  
+  if (obs.type.startsWith("cactus")) {
+    ctx.fillStyle = isCyber ? "#ff007f" : "#535353";
+    
+    ctx.fillRect(obs.x + obs.width * 0.3, obs.y, obs.width * 0.4, obs.height);
+    ctx.fillRect(obs.x, obs.y + obs.height * 0.3, obs.width * 0.3, obs.height * 0.35);
+    ctx.fillRect(obs.x + obs.width * 0.7, obs.y + obs.height * 0.2, obs.width * 0.3, obs.height * 0.4);
+    
+    if (isCyber) {
+      ctx.fillStyle = "#00f5ff";
+      ctx.fillRect(obs.x + obs.width * 0.3 - 2, obs.y + 6, 2, 2);
+      ctx.fillRect(obs.x + obs.width * 0.7 + 2, obs.y + 12, 2, 2);
+    }
+  } else if (obs.type === "drone_fly") {
+    ctx.fillStyle = isCyber ? "#ffe600" : "#535353";
+    
+    ctx.fillRect(obs.x + 8, obs.y + 8, 20, 8);
+    ctx.fillRect(obs.x, obs.y + 10, 10, 4);
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(obs.x + 18, obs.y + 4, 3, 3);
+    
+    ctx.fillStyle = isCyber ? "#00f5ff" : "#777777";
+    if (Math.floor(obs.wingFrame) === 0) {
+      ctx.fillRect(obs.x + 12, obs.y - 6, 8, 14);
+    } else {
+      ctx.fillRect(obs.x + 12, obs.y + 12, 8, 12);
+    }
+  }
+}
+
+function drawTRexUI(ctx, w, h) {
+  const isCyber = trexGame.theme === "cyber";
+  const textColor = isCyber ? "#00f5ff" : "#535353";
+  
+  ctx.fillStyle = textColor;
+  ctx.font = "12px monospace";
+  ctx.textAlign = "right";
+  
+  const scoreStr = trexGame.score.toString().padStart(5, '0');
+  const hiStr = trexGame.highScore.toString().padStart(5, '0');
+  
+  ctx.fillText(`HI ${hiStr}  ${scoreStr}`, w - 15, 25);
+  
+  if (trexGame.gameState === "READY") {
+    ctx.textAlign = "center";
+    ctx.font = "bold 14px monospace";
+    ctx.fillStyle = isCyber ? "#ff007f" : "#333333";
+    ctx.fillText("🦖 PRESS SPACE / UP ARROW OR TAP TO RUN", w / 2, h / 2 - 10);
+    ctx.font = "11px monospace";
+    ctx.fillStyle = isCyber ? "#00f5ff" : "#666666";
+    ctx.fillText("[ SPACE = JUMP | DOWN = DUCK ]", w / 2, h / 2 + 15);
+  } else if (trexGame.gameState === "GAMEOVER") {
+    ctx.textAlign = "center";
+    ctx.font = "bold 18px monospace";
+    ctx.fillStyle = isCyber ? "#ff007f" : "#d32f2f";
+    ctx.fillText("G A M E   O V E R", w / 2, h / 2 - 20);
+    
+    ctx.font = "bold 12px monospace";
+    ctx.fillStyle = isCyber ? "#ffe600" : "#333333";
+    ctx.fillText(`SYSTEM COLLISION // SCORE: ${scoreStr}`, w / 2, h / 2 + 5);
+    
+    ctx.font = "11px monospace";
+    ctx.fillStyle = isCyber ? "#00f5ff" : "#666666";
+    ctx.fillText("PRESS SPACE OR TAP TO REBOOT SIMULATION", w / 2, h / 2 + 30);
+  }
+}
+
+function updateTRexScoreBoard() {
+  const scoreEl = document.getElementById("trex-score-val");
+  const hiEl = document.getElementById("trex-hi-val");
+  if (scoreEl) scoreEl.textContent = trexGame.score.toString().padStart(5, '0');
+  if (hiEl) hiEl.textContent = trexGame.highScore.toString().padStart(5, '0');
+
+  const modalScore = document.getElementById("trex-score-val-modal");
+  const modalHi = document.getElementById("trex-hi-val-modal");
+  if (modalScore) modalScore.textContent = trexGame.score.toString().padStart(5, '0');
+  if (modalHi) modalHi.textContent = trexGame.highScore.toString().padStart(5, '0');
+}
+
+function toggleTRexTheme() {
+  trexGame.theme = trexGame.theme === "cyber" ? "classic" : "cyber";
+  playCyberSound("click");
+  drawTRexFrame();
+}
+
+let codingSubTab = "list"; // "list" or "trex"
+
+function switchCodingSubTab(subTab) {
+  playCyberSound("click");
+  codingSubTab = subTab;
+  
+  const listBtn = document.getElementById("subtab-btn-list");
+  const trexBtn = document.getElementById("subtab-btn-trex");
+  const logsList = document.getElementById("archive-logs-list");
+  const gameWorkspace = document.getElementById("trex-game-workspace");
+
+  if (subTab === "trex") {
+    if (listBtn) listBtn.className = "px-3 py-1.5 rounded font-terminal font-bold transition-all text-zinc-400 hover:text-white border border-white/10 hover:border-white/20 bg-black/40 flex items-center gap-1.5 cursor-pointer";
+    if (trexBtn) trexBtn.className = "px-3 py-1.5 rounded font-terminal font-bold transition-all bg-neon-yellow/20 text-neon-yellow border border-neon-yellow/60 shadow-[0_0_12px_rgba(255,230,0,0.3)] flex items-center gap-2 cursor-pointer";
+    
+    if (logsList) logsList.classList.add("hidden");
+    if (gameWorkspace) gameWorkspace.classList.remove("hidden");
+
+    initTRexCanvas("trex-game-canvas");
+    selectLogDiagnostics("arch_trex");
+  } else {
+    if (listBtn) listBtn.className = "px-3 py-1.5 rounded font-terminal font-bold transition-all bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/50 shadow-[0_0_8px_rgba(0,245,255,0.2)] flex items-center gap-1.5 cursor-pointer";
+    if (trexBtn) trexBtn.className = "px-3 py-1.5 rounded font-terminal font-bold transition-all text-zinc-400 hover:text-neon-yellow border border-white/10 hover:border-neon-yellow/40 bg-black/40 flex items-center gap-2 cursor-pointer group";
+
+    if (gameWorkspace) gameWorkspace.classList.add("hidden");
+    if (logsList) logsList.classList.remove("hidden");
+
+    renderArchiveLogsList();
+  }
+}
+
+function openTRexGameModal() {
+  playCyberSound("click");
+  let modal = document.getElementById("trex-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "trex-modal";
+    modal.className = "fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 select-none";
+    modal.innerHTML = `
+      <div class="bg-cyber-black border-2 border-neon-cyan/50 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-[0_0_35px_rgba(0,245,255,0.3)] relative flex flex-col gap-4 font-mono">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🦖</span>
+            <div>
+              <h3 class="font-terminal font-bold text-white uppercase text-base sm:text-lg tracking-wider">T-REX DINO RUN // GOOGLE DINO GAME</h3>
+              <p class="text-[10px] text-neon-cyan">Cyber-Goth Arcade Engine</p>
+            </div>
+          </div>
+          <button onclick="window.closeTRexGameModal()" class="w-8 h-8 rounded-full border border-white/20 hover:border-neon-magenta text-zinc-400 hover:text-neon-magenta flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">
+            ✕
+          </button>
+        </div>
+        
+        <div class="flex justify-between items-center bg-black/60 px-3 py-1.5 rounded border border-white/10 text-xs">
+          <span class="text-zinc-400">SCORE: <strong id="trex-score-val-modal" class="text-neon-cyan font-bold">00000</strong></span>
+          <span class="text-zinc-400">HIGH: <strong id="trex-hi-val-modal" class="text-neon-yellow font-bold">00000</strong></span>
+        </div>
+
+        <div class="relative w-full overflow-hidden rounded-lg border-2 border-neon-cyan/40 bg-cyber-black shadow-[0_0_20px_rgba(0,245,255,0.2)]">
+          <canvas id="trex-modal-canvas" width="600" height="200" class="w-full h-auto block cursor-pointer"></canvas>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-terminal text-xs">
+          <button onclick="window.triggerTRexJump()" class="py-2.5 bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 rounded font-bold hover:bg-neon-cyan/30 flex items-center justify-center gap-1">⬆ JUMP</button>
+          <button onmousedown="window.triggerTRexDuck(true)" onmouseup="window.triggerTRexDuck(false)" ontouchstart="window.triggerTRexDuck(true)" ontouchend="window.triggerTRexDuck(false)" class="py-2.5 bg-neon-purple/20 text-neon-purple border border-neon-purple/40 rounded font-bold hover:bg-neon-purple/30 flex items-center justify-center gap-1">⬇ DUCK</button>
+          <button onclick="window.startTRexGame()" class="py-2.5 bg-neon-magenta/20 text-neon-magenta border border-neon-magenta/40 rounded font-bold hover:bg-neon-magenta/30 flex items-center justify-center gap-1">🔄 REBOOT</button>
+          <button onclick="window.toggleTRexTheme()" class="py-2.5 bg-black/60 text-neon-yellow border border-neon-yellow/30 rounded font-bold hover:border-neon-yellow/60 flex items-center justify-center gap-1">🎨 THEME</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  } else {
+    modal.classList.remove("hidden");
+  }
+  
+  initTRexCanvas("trex-modal-canvas");
+}
+
+function closeTRexGameModal() {
+  playCyberSound("click");
+  const modal = document.getElementById("trex-modal");
+  if (modal) modal.classList.add("hidden");
+  if (trexGame.animationId) {
+    cancelAnimationFrame(trexGame.animationId);
+    trexGame.animationId = null;
+  }
 }
 
 function selectLogDiagnostics(id) {
@@ -1881,10 +2595,27 @@ function processHackerCommand(cmd) {
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>projects / vault</span> - Output featured top CS archive projects", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>stack / skills</span> - Output tech stack and engineering pipelines", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>dossier / bio</span> - Read Tashenea's profile data", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>trex / dino</span> - Launch T-Rex Google Dino Run Arcade Game", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>socials / links</span> - Display official YouTube, Instagram & TikTok channels", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>secret</span> - Unlock hidden easter egg control panel & theme customizer", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>clear</span> - Purge terminal buffer logs", true);
       appendTerminalLog("system", "==========================================================");
+      break;
+
+    case "trex":
+    case "dino":
+    case "dinorun":
+    case "game":
+    case "play":
+      appendTerminalLog("success", "🦖 BOOTING CYBER-GOTH T-REX GAME ENGINE...");
+      if (document.getElementById("trex-game-workspace")) {
+        filterArchive("CODING");
+        switchCodingSubTab("trex");
+        const el = document.getElementById("coding-subtabs-bar");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      } else {
+        openTRexGameModal();
+      }
       break;
 
     case "socials":
@@ -2216,4 +2947,11 @@ window.openHackModal = openHackModal;
 window.closeHackModal = closeHackModal;
 window.setCyberTheme = setCyberTheme;
 window.runFooterDiagnostics = runFooterDiagnostics;
+window.switchCodingSubTab = switchCodingSubTab;
+window.startTRexGame = startTRexGame;
+window.triggerTRexJump = triggerTRexJump;
+window.triggerTRexDuck = triggerTRexDuck;
+window.toggleTRexTheme = toggleTRexTheme;
+window.openTRexGameModal = openTRexGameModal;
+window.closeTRexGameModal = closeTRexGameModal;
 
