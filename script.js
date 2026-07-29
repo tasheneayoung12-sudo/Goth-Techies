@@ -2925,7 +2925,7 @@ function processHackerCommand(cmd) {
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>hack / override</span> - Bypass firewall and trigger Level 99 Overlord breach", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>matrix</span> - Toggle falling neon digital rain canvas", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>glitch</span> - Trigger a screen neural distortion waveform", true);
-      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>whoami</span> - Display current operative status & session badges", true);
+      appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>whoami</span> - Display Tashenea's short blurb & operative profile", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>projects / vault</span> - Output featured top CS archive projects", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>stack / skills</span> - Output tech stack and engineering pipelines", true);
       appendTerminalLog("raw", "<span class='text-neon-yellow font-bold'>dossier / bio</span> - Read Tashenea's profile data", true);
@@ -2982,13 +2982,15 @@ function processHackerCommand(cmd) {
 
     case "whoami": {
       const isOverlord = sessionStorage.getItem("bee_net_hacked") === "true";
+      appendTerminalLog("system", "================ OPERATIVE PROFILE: TASHENEA ================");
+      appendTerminalLog("raw", "<span class='text-neon-cyan font-bold'>IDENTITY:</span> <span class='text-white font-bold'>Tashenea Burns-Young</span> (Computer Science Master's Student, AI/ML Developer & Educator)", true);
+      appendTerminalLog("raw", "<span class='text-neon-purple font-bold'>SHORT BIO:</span> Hey, I'm Tashenea! I fuse gothic cyberpunk aesthetics with deep CS engineering, AI & Machine Learning research, gaming culture, and value-driven principles to equip and empower bold tech builders.", true);
       if (isOverlord) {
-        appendTerminalLog("success", "👤 OPERATIVE IDENT: [LEVEL 99 CYBER OVERLORD]");
-        appendTerminalLog("system", "STATUS: SYSTEM OVERRIDDEN // UNRESTRICTED ACCESS GRANTED");
+        appendTerminalLog("success", "SECURITY CLEARANCE: [LEVEL 99 CYBER OVERLORD] // Unrestricted Access Granted");
       } else {
-        appendTerminalLog("system", "👤 OPERATIVE IDENT: [GUEST_VISITOR_NODE]");
-        appendTerminalLog("system", "STATUS: FIREWALL ACTIVE // TYPE 'hack' OR CLICK [1-CLICK OVERRIDE] TO ELEVATE PERMISSIONS");
+        appendTerminalLog("system", "SECURITY CLEARANCE: [GUEST_VISITOR_NODE] // Type 'hack' or click [1-CLICK OVERRIDE] to elevate permissions");
       }
+      appendTerminalLog("system", "==============================================================");
       break;
     }
 
