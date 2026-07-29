@@ -84,7 +84,7 @@ function setAsActiveDriveLogo(urlOrId) {
     localStorage.setItem("gdrive_active_file_id", parsed.fileId);
     applyStoredDriveLogo();
     if (typeof playCyberSound === "function") playCyberSound("success");
-    alert("⚡ Google Drive image from folder '1ijfI1cmTB3FkkZloPigC2Xc9bybvDoAB' set as active site logo & main image!");
+    alert("⚡ Google Drive image set as active site main image!");
     return true;
   } catch (e) {
     console.error("Failed to save active drive logo:", e);
@@ -183,8 +183,7 @@ async function handleFetchGothTechiesFolder() {
         <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-2">
           <p class="font-bold text-neon-cyan font-terminal">⚡ GOOGLE DRIVE FOLDER CONNECTED</p>
           <p class="text-zinc-400 text-[11px] leading-relaxed">
-            Designated Image Drive Folder: <a href="${DEFAULT_DRIVE_FOLDER_URL}" target="_blank" class="text-neon-yellow underline font-mono break-all">${DEFAULT_DRIVE_FOLDER_URL}</a>.
-            All created images and site visuals are stored in and synced from this folder.
+            Folder connected successfully. Images are active and ready.
           </p>
         </div>
       `;
@@ -195,7 +194,7 @@ async function handleFetchGothTechiesFolder() {
     galleryGrid.innerHTML = `
       <div class="col-span-2 p-3 bg-cyber-dark border border-white/10 rounded text-zinc-300 font-sans text-xs flex flex-col gap-1">
         <p class="font-bold text-neon-magenta font-terminal">STREAM READY</p>
-        <p class="text-zinc-400 text-[11px]">Configured Drive Folder: <a href="${DEFAULT_DRIVE_FOLDER_URL}" target="_blank" class="text-neon-yellow underline font-mono break-all">${DEFAULT_DRIVE_FOLDER_URL}</a></p>
+        <p class="text-zinc-400 text-[11px]">Paste any Google Drive share link or File ID to load.</p>
       </div>
     `;
   }
@@ -816,22 +815,83 @@ function handleAccess() {
 // Subculture/Hobby selection updates
 const hobbyLogs = {
   anime: {
-    title: "Cyber-Anime Subculture Integration",
-    desc: "Deep obsession with psychological thrillers, futuristic mecha settings, neoclassic cyber-rebellion and dark fantasy storyboards.",
-    specs: ["Serial Experiments Lain", "Ghost in the Shell", "Psycho-Pass", "Cyberpunk: Edgerunners"],
-    tag: "ANIME_NODE"
+    title: "Cyber-Anime, Manga & Sci-Fi Literature Node",
+    desc: "Deep obsession with dark gritty magic, lizard-headed Caiman, Nikaido's Hungry Bug gyoza shop, sorcerer magic smoke, the Hole, dark manga sagas, cyberpunk literature, and psychological thrillers.",
+    specs: [
+      "🐊 Dorohedoro (CURRENT FAVORITE #1)",
+      "⛓️ Chainsaw Man",
+      "🌀 Ergo Proxy",
+      "🍿 Serial Experiments Lain",
+      "🍿 Ghost in the Shell",
+      "🍿 Psycho-Pass"
+    ],
+    manga: [
+      "📖 Dorohedoro (Q Hayashida)",
+      "📖 Berserk (Kentaro Miura)",
+      "📖 Chainsaw Man (Tatsuki Fujimoto)",
+      "📖 Tokyo Ghoul (Sui Ishida)",
+      "📖 Blame! (Tsutomu Nihei)"
+    ],
+    books: [
+      "📚 Neuromancer (William Gibson)",
+      "📚 Do Androids Dream of Electric Sheep? (Philip K. Dick)",
+      "📚 Dune (Frank Herbert)",
+      "📚 Blindsight (Peter Watts)"
+    ],
+    tag: "ANIME_MANGA_NODE",
+    badgeLabel: "🔥 CURRENT FAVORITE: DOROHEDORO",
+    badgeClass: "bg-neon-yellow/10 border-neon-yellow/40 text-neon-yellow",
+    spotlight: {
+      title: "🐊 DOROHEDORO (ドロヘドロ)",
+      meta: "MAPPA / Q HAYASHIDA // FAVORITE ANIME & MANGA",
+      borderColor: "border-neon-yellow/40",
+      titleColor: "text-neon-yellow",
+      desc: "Gritty dark fantasy, sorcerer magic smoke, lizard-headed Caiman searching for his true identity, Nikaido's Hungry Bug gyoza, En's family, and chaotic Hole violence mixed with dark surreal humor."
+    }
   },
   horror: {
-    title: "Gothic/Horror Narrative Aesthetic",
-    desc: "Deep love for speculative dark lore, survival horror architectures, existential cyber-dystopias, and gothic mystery novels.",
-    specs: ["Interactive gothic visual games", "Surreal analog horror formats", "Lovecraftian tech mysteries", "Deep survival horror coding design"],
-    tag: "HORROR_VAULT"
+    title: "Gothic/Horror Narrative & Slasher Icons",
+    desc: "Deep love for raw 1970s slasher classics, iconic horror legends, survival horror architectures, existential cyber-dystopias, and analog horror mystery lore.",
+    specs: [
+      "⛓️ Texas Chainsaw Massacre (1979) [FAVORITE MOVIE]",
+      "🔪💋 Tiffany Valentine (Bride of Chucky)",
+      "🔪🎃 Michael Myers (Halloween)",
+      "🎮 Silent Hill 2",
+      "🎮 Resident Evil",
+      "📼 Analog Horror Formats"
+    ],
+    tag: "HORROR_VAULT",
+    badgeLabel: "🔪 FAVORITES: LEATHERFACE, TIFFANY & MICHAEL MYERS",
+    badgeClass: "bg-neon-magenta/10 border-neon-magenta/40 text-neon-magenta",
+    spotlight: {
+      title: "⛓️ TEXAS CHAINSAW MASSACRE (1979) + HORROR ICONS",
+      meta: "TOBE HOOPER // TIFFANY VALENTINE // MICHAEL MYERS",
+      borderColor: "border-neon-magenta/40",
+      titleColor: "text-neon-magenta",
+      desc: "Raw 1979 Texas Chainsaw Massacre atmosphere paired with my absolute favorite horror icons: Tiffany Valentine (killer wit & lethal charm in Bride of Chucky) and Michael Myers (the unstoppable, cold essence of Halloween terror)."
+    }
   },
   fantasy: {
-    title: "Alternate Reality & Sacred Fantasy Arcana",
-    desc: "Appreciation of grand worldbuilding, high-magic engineering protocols, speculative visual novels, and classical Christian allegory integrations.",
-    specs: ["Medieval-punk blueprints", "High-fantasy game designs", "Ethical narrative creation", "Inspirational allegories"],
-    tag: "FANTASY_REALM"
+    title: "Dark Fantasy, Epic Shows & Sacred Allegory",
+    desc: "Appreciation of grand high-fantasy television series, rich worldbuilding, high-magic engineering protocols, and classical sacred allegory integrations. Open for suggestions!",
+    specs: [
+      "👑 Game of Thrones",
+      "🐉 House of the Dragon",
+      "⚔️ The Witcher",
+      "💍 LOTR: The Rings of Power",
+      "☸️ The Wheel of Time",
+      "💬 Open for More Suggestions!"
+    ],
+    tag: "FANTASY_REALM",
+    badgeLabel: "👑 EPIC FANTASY SHOWS + OPEN FOR SUGGESTIONS",
+    badgeClass: "bg-neon-purple/10 border-neon-purple/40 text-neon-purple",
+    spotlight: {
+      title: "👑 GAME OF THRONES & EPIC FANTASY SHOWS",
+      meta: "WESTEROS // DARK FANTASY // OPEN FOR SUGGESTIONS",
+      borderColor: "border-neon-purple/40",
+      titleColor: "text-neon-purple",
+      desc: "Obsessed with epic dark fantasy sagas like Game of Thrones, House of the Dragon, and The Witcher! Always open for more high-fantasy, sacred allegory, or medieval lore suggestions."
+    }
   }
 };
 
@@ -857,27 +917,65 @@ function selectHobby(key) {
   // Render detail log
   const data = hobbyLogs[key];
   const container = document.getElementById("hobby-log-display");
+  
+  const spotlightHtml = data.spotlight ? `
+    <div class="p-3 bg-cyber-dark/80 border ${data.spotlight.borderColor || 'border-neon-yellow/40'} rounded-md flex flex-col gap-1.5 my-1">
+      <div class="flex items-center justify-between text-xs font-terminal ${data.spotlight.titleColor || 'text-neon-yellow'} font-bold">
+        <span>${data.spotlight.title}</span>
+        <span class="text-[10px] text-zinc-400 font-mono">${data.spotlight.meta}</span>
+      </div>
+      <p class="font-sans text-zinc-300 text-[11px] leading-relaxed">
+        ${data.spotlight.desc}
+      </p>
+    </div>
+  ` : '';
+
   container.innerHTML = `
     <div class="flex justify-between items-center text-[10px] text-zinc-500 border-b border-white/5 pb-2">
       <span>DECRYPTED FOCUS: ${data.tag}</span>
       <span class="animate-pulse text-neon-green">ACTIVE_READ</span>
     </div>
-    <h5 class="font-terminal font-bold text-sm text-neon-yellow uppercase">
-      ${data.title}
-    </h5>
+    <div class="flex items-center justify-between">
+      <h5 class="font-terminal font-bold text-sm text-neon-yellow uppercase">
+        ${data.title}
+      </h5>
+      ${data.badgeLabel ? `<span class="px-2 py-0.5 border ${data.badgeClass} rounded text-[10px] font-terminal font-bold">${data.badgeLabel}</span>` : ''}
+    </div>
+    ${spotlightHtml}
     <p class="font-sans text-zinc-300 leading-relaxed text-xs">
       ${data.desc}
     </p>
     <div class="flex flex-col gap-1.5 mt-2.5">
-      <span class="text-zinc-500 uppercase text-[10px]">AESTHETIC REFERENCE SAMPLES:</span>
+      <span class="text-zinc-500 uppercase text-[10px]">AESTHETIC REFERENCE SAMPLES & LORE:</span>
       <div class="flex flex-wrap gap-1.5 mt-1">
-        ${data.specs.map(item => `
-          <span class="bg-white/5 px-2 py-1 text-zinc-300 border border-white/10 rounded font-sans text-[11px]">
-            🍿 ${item}
-          </span>
-        `).join("")}
+        ${data.specs.map(item => {
+          let badgeStyle = 'bg-white/5 text-zinc-300 border border-white/10 font-sans';
+          if (item.includes('Dorohedoro')) badgeStyle = 'bg-neon-yellow/15 text-neon-yellow border border-neon-yellow/50 font-terminal font-bold';
+          if (item.includes('Texas Chainsaw') || item.includes('Tiffany') || item.includes('Michael Myers')) badgeStyle = 'bg-neon-magenta/15 text-neon-magenta border border-neon-magenta/50 font-terminal font-bold';
+          if (item.includes('Game of Thrones') || item.includes('House of the Dragon') || item.includes('Witcher') || item.includes('Open for')) badgeStyle = 'bg-neon-purple/15 text-neon-purple border border-neon-purple/50 font-terminal font-bold';
+          
+          return `<span class="${badgeStyle} px-2 py-1 rounded text-[11px]">${item}</span>`;
+        }).join("")}
       </div>
     </div>
+
+    ${data.manga ? `
+      <div class="flex flex-col gap-1.5 mt-2">
+        <span class="text-neon-cyan font-terminal font-bold uppercase text-[10px]">📖 RECOMMENDED MANGA:</span>
+        <div class="flex flex-wrap gap-1.5">
+          ${data.manga.map(m => `<span class="bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/30 px-2 py-1 rounded font-sans text-[11px]">${m}</span>`).join("")}
+        </div>
+      </div>
+    ` : ''}
+
+    ${data.books ? `
+      <div class="flex flex-col gap-1.5 mt-2">
+        <span class="text-neon-yellow font-terminal font-bold uppercase text-[10px]">📚 RECOMMENDED CYBERPUNK & SCI-FI BOOKS:</span>
+        <div class="flex flex-wrap gap-1.5">
+          ${data.books.map(b => `<span class="bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/30 px-2 py-1 rounded font-sans text-[11px]">${b}</span>`).join("")}
+        </div>
+      </div>
+    ` : ''}
   `;
 }
 
@@ -2569,12 +2667,24 @@ function replayCanvaVideo() {
 // ==========================================
 
 let matrixInterval = null;
+let matrixTimer = null;
+let matrixCountdownInterval = null;
 let matrixCanvas = null;
 let matrixCtx = null;
 let isMatrixActive = false;
 
-function toggleMatrixRain() {
+function toggleMatrixRain(durationSeconds = 4) {
   playCyberSound("beep");
+
+  if (matrixTimer) {
+    clearTimeout(matrixTimer);
+    matrixTimer = null;
+  }
+  if (matrixCountdownInterval) {
+    clearInterval(matrixCountdownInterval);
+    matrixCountdownInterval = null;
+  }
+
   isMatrixActive = !isMatrixActive;
   const canvas = document.getElementById("matrix-canvas");
   const toggleBtnText = document.getElementById("matrix-toggle-status");
@@ -2583,15 +2693,47 @@ function toggleMatrixRain() {
 
   if (isMatrixActive) {
     canvas.classList.remove("hidden");
-    if (toggleBtnText) toggleBtnText.textContent = "MATRIX: ACTIVE";
+    let remaining = durationSeconds;
+    if (toggleBtnText) toggleBtnText.textContent = `MATRIX: ACTIVE (${remaining}s)`;
     startMatrixRain(canvas);
-    appendTerminalLog("system", ">>> SCRIPTURE & AFFIRMATION MATRIX RAIN ACTIVATED [SCRIPTURES & AFFIRMATIONS]");
+    appendTerminalLog("system", `>>> SCRIPTURE & AFFIRMATION MATRIX RAIN ACTIVATED [AUTO-OFF TIMER: ${durationSeconds}S]`);
+
+    matrixCountdownInterval = setInterval(() => {
+      remaining--;
+      if (remaining > 0) {
+        if (toggleBtnText) toggleBtnText.textContent = `MATRIX: ACTIVE (${remaining}s)`;
+      } else {
+        if (matrixCountdownInterval) {
+          clearInterval(matrixCountdownInterval);
+          matrixCountdownInterval = null;
+        }
+      }
+    }, 1000);
+
+    matrixTimer = setTimeout(() => {
+      stopMatrixRainAndDisable();
+    }, durationSeconds * 1000);
   } else {
-    canvas.classList.add("hidden");
-    if (toggleBtnText) toggleBtnText.textContent = "MATRIX: READY";
-    stopMatrixRain();
-    appendTerminalLog("system", ">>> SCRIPTURE MATRIX RAIN DEACTIVATED.");
+    stopMatrixRainAndDisable();
   }
+}
+
+function stopMatrixRainAndDisable() {
+  isMatrixActive = false;
+  if (matrixTimer) {
+    clearTimeout(matrixTimer);
+    matrixTimer = null;
+  }
+  if (matrixCountdownInterval) {
+    clearInterval(matrixCountdownInterval);
+    matrixCountdownInterval = null;
+  }
+  const canvas = document.getElementById("matrix-canvas");
+  const toggleBtnText = document.getElementById("matrix-toggle-status");
+  if (canvas) canvas.classList.add("hidden");
+  if (toggleBtnText) toggleBtnText.textContent = "MATRIX: READY";
+  stopMatrixRain();
+  appendTerminalLog("system", ">>> SCRIPTURE MATRIX RAIN DEACTIVATED.");
 }
 
 function startMatrixRain(canvas) {
@@ -3107,6 +3249,7 @@ window.closeMobileMenu = closeMobileMenu;
 window.setNewsletterSubscribe = setNewsletterSubscribe;
 window.setAnonymousPost = setAnonymousPost;
 window.toggleMatrixRain = toggleMatrixRain;
+window.stopMatrixRainAndDisable = stopMatrixRainAndDisable;
 window.triggerScreenGlitch = triggerScreenGlitch;
 window.handleTerminalSubmit = handleTerminalSubmit;
 window.processHackerCommand = processHackerCommand;
