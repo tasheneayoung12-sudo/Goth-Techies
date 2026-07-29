@@ -429,13 +429,13 @@ const state = {
     {
       id: "arch_01",
       hash: "0x8F9C11",
-      title: "Cyberpunk Interactive Operating System UI",
-      category: "CODING",
+      title: "Lego Capybara AI Video & Cyberpunk OS UI",
+      category: "STUDENT_WORK",
       date: "2026-06-18",
-      description: "An offline-first browser OS using Tailwind v4, custom Web Audio synthesis, and dynamic responsive layout blocks targeting alternative youth.",
-      tags: ["React 19", "Tailwind 4", "Web Audio API", "Framer Motion"],
+      description: "Student Work Project: Interactive Canva AI Video animation featuring Lego Capybara alongside an offline-first browser OS using Tailwind v4, Web Audio synthesis, and dynamic responsive layout blocks.",
+      tags: ["Student Work", "Lego Capybara", "Canva Video", "AI Animation", "Tailwind 4"],
       status: "COMPILED",
-      extendedLog: "Successfully optimized file sizes and bundle structure to comply with platform parameters. Loaded Share Tech Mono dynamically, implementing retro curved CRT matrix effects with pure canvas and CSS rendering.",
+      extendedLog: "Student work project: Interactive Lego Capybara AI video animation uplink embedded alongside optimized browser OS UI structure, custom Web Audio synthesis, and CRT matrix aesthetic controls.",
       embedHtml: `<div class="mt-4 border-t border-white/5 pt-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-neon-cyan uppercase block text-[10px] font-bold tracking-wider flex items-center gap-1.5">
@@ -463,24 +463,24 @@ const state = {
       id: "arch_trex",
       hash: "0x7R3X99",
       title: "T-Rex Game - Google Dino Run (Cyber-Goth Edition)",
-      category: "CODING",
+      category: "STUDENT_WORK",
       date: "2026-07-25",
-      description: "Playable recreation of the famous Chrome Dino Runner. Jump over cacti & cyber spikes, duck under flying drones, and track high scores in real-time.",
-      tags: ["HTML5 Canvas", "JavaScript", "Arcade Game", "Physics Engine", "Web Audio"],
+      description: "Student Work Project: Playable recreation of the famous Chrome Dino Runner. Jump over cacti & cyber spikes, duck under flying drones, and track high scores in real-time.",
+      tags: ["Student Work", "HTML5 Canvas", "JavaScript", "Arcade Game", "Physics Engine"],
       status: "PLAYABLE",
-      extendedLog: "Full physics state engine compiled with 60 FPS requestAnimationFrame loop, collision detection hitboxes, Web Audio synthesizer jump SFX, mobile touch gesture controls, and persistent high scores stored in browser memory.",
+      extendedLog: "Student work project: Full physics state engine compiled with 60 FPS requestAnimationFrame loop, collision detection hitboxes, Web Audio synthesizer jump SFX, mobile touch gesture controls, and persistent high scores stored in browser memory.",
       embedHtml: `<div class="mt-4 border-t border-white/5 pt-4">
         <div class="flex items-center justify-between mb-3">
           <span class="text-neon-yellow uppercase font-bold tracking-wider text-[11px] flex items-center gap-1.5">
             <span class="inline-block w-2 h-2 rounded-full bg-neon-yellow animate-ping"></span>
-            INTERACTIVE_ARCADE_SIMULATION
+            STUDENT_WORK_ARCADE_SIMULATION
           </span>
           <button onclick="window.switchCodingSubTab('trex')" class="px-3 py-1 bg-neon-magenta/20 hover:bg-neon-magenta/40 text-neon-magenta border border-neon-magenta/50 rounded text-xs font-terminal tracking-wider transition-all shadow-[0_0_10px_rgba(255,0,127,0.3)] cursor-pointer flex items-center gap-1.5">
             <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> LAUNCH FULLSCREEN GAME
           </button>
         </div>
         <div class="bg-black/60 border border-neon-cyan/30 rounded-lg p-3 text-center">
-          <p class="text-xs text-zinc-300 font-sans mb-3">Click below to launch the interactive T-Rex Runner game in the Coding workspace!</p>
+          <p class="text-xs text-zinc-300 font-sans mb-3">Click below to launch the interactive T-Rex Runner student work game!</p>
           <button onclick="window.switchCodingSubTab('trex')" class="w-full py-2.5 bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-cyan text-white font-terminal font-bold rounded tracking-widest uppercase hover:brightness-110 shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer text-xs">
             🦖 PLAY T-REX DINO RUN NOW
           </button>
@@ -508,6 +508,29 @@ const state = {
       tags: ["AI", "PyTorch", "D3.js", "Neural Nets"],
       status: "EXECUTING",
       extendedLog: "Visualized feed-forward weight adjustments in real time during backpropagation. Visualizations rendered beautifully inside WebGL sandbox, proving cognitive structures can be styled with dark synthwave schemes."
+    },
+    {
+      id: "arch_church",
+      hash: "0x777EPC",
+      title: "Lighthouse Evangelistic Prayer Cathedral (formerly EPC)",
+      category: "VALUES",
+      date: "2026-07-29",
+      description: "My Church Home — Lighthouse Evangelistic Prayer Cathedral (formerly known as EPC), overseen by Apostle and Bishop Dr. Louvell A. Anderson (serving since 1998) alongside Presiding Prelate Bishop J. Faraja Kafela.",
+      tags: ["Church Home", "Apostolic Guidance", "Evangelistic Prayer Cathedral", "Faith & Purpose", "Spiritual Refuge"],
+      status: "LIGHT_SOURCE",
+      extendedLog: "Lighthouse Evangelistic Prayer Cathedral (formerly known as EPC) is a vibrant, Spirit-filled house of worship and spiritual refuge dedicated to fervent prayer, evangelism, community transformation, and biblical truth. Overseen faithfully by Apostle and Bishop Dr. Louvell A. Anderson (serving since 1998) alongside Presiding Prelate Bishop J. Faraja Kafela, the cathedral stands as a beacon of divine light, empowering believers through apostolic leadership, divine truth, and transformative faith.",
+      embedHtml: `<div class="mt-3 p-3.5 bg-black/60 border border-neon-purple/40 rounded-lg flex flex-col gap-2 font-sans shadow-[0_0_15px_rgba(157,78,221,0.2)]">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-terminal font-bold text-neon-purple uppercase flex items-center gap-1.5">
+            <span>✝️ LIGHTHOUSE EVANGELISTIC PRAYER CATHEDRAL</span>
+          </span>
+          <span class="px-2 py-0.5 text-[9px] font-mono bg-neon-purple/20 text-neon-purple border border-neon-purple/40 rounded uppercase font-bold">FORMERLY EPC</span>
+        </div>
+        <div class="text-xs text-zinc-300 space-y-1">
+          <p><strong class="text-white">Apostolic Leadership:</strong> Overseen by <strong>Apostle and Bishop Dr. Louvell A. Anderson</strong> (serving since 1998) alongside <strong>Presiding Prelate Bishop J. Faraja Kafela</strong>.</p>
+          <p><strong class="text-white">Church Summary:</strong> A vibrant, Spirit-filled house of worship and spiritual refuge dedicated to fervent prayer, evangelism, community outreach, and empowering believers through apostolic truth and divine purpose.</p>
+        </div>
+      </div>`
     },
     {
       id: "arch_04",
@@ -1395,14 +1418,14 @@ function filterArchive(filter) {
 
   const subtabsBar = document.getElementById("coding-subtabs-bar");
   if (subtabsBar) {
-    if (filter === "CODING" || filter === "ALL") {
+    if (filter === "CODING" || filter === "STUDENT_WORK" || filter === "ALL") {
       subtabsBar.classList.remove("hidden");
     } else {
       subtabsBar.classList.add("hidden");
     }
   }
 
-  if (codingSubTab === "trex" && (filter === "CODING" || filter === "ALL")) {
+  if (codingSubTab === "trex" && (filter === "CODING" || filter === "STUDENT_WORK" || filter === "ALL")) {
     switchCodingSubTab("trex");
   } else {
     const gameWorkspace = document.getElementById("trex-game-workspace");
@@ -1435,6 +1458,7 @@ function renderArchiveLogsList() {
     if (log.status === "EXECUTING") statusClass = "border-neon-green/30 text-neon-green bg-neon-green/5 animate-pulse";
     if (log.status === "COMPILED") statusClass = "border-neon-cyan/25 text-neon-cyan bg-neon-cyan/5";
     if (log.status === "PLAYABLE") statusClass = "border-neon-yellow/40 text-neon-yellow bg-neon-yellow/10 font-bold animate-pulse";
+    if (log.status === "LIGHT_SOURCE") statusClass = "border-neon-purple/50 text-neon-purple bg-neon-purple/20 font-bold shadow-[0_0_8px_rgba(157,78,221,0.3)]";
 
     div.innerHTML = `
       <div class="flex justify-between items-center text-[10px] sm:text-xs font-mono">
