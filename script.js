@@ -381,32 +381,32 @@ const state = {
   skills: [
     {
       id: "cs_learning",
-      codeName: "CS_LEARNING_MODULE",
+      codeName: "TEACHING_TECH_MODULE",
       extension: "exe",
-      title: "Computer Science & AI Academy",
-      description: "De-mystify complex computer science, neural networks, and algorithms through intuitive visual modules for absolute beginners.",
+      title: "Teaching Tech & CS Academy",
+      description: "Interactive Teaching Tech roadmaps, beginner computer science tutorials, Python & JavaScript zero-to-one guides, and AI neural network walkthroughs.",
       details: [
-        "Zero-to-One Programming (Python & JS)",
-        "How Neural Networks think (LLMs, transformers)",
-        "Git & Open Source collaboration",
-        "Building your first web app with modern stack"
+        "Teaching Tech roadmaps for absolute beginners",
+        "Zero-to-One Programming (Python, JS & React)",
+        "How AI Neural Networks think (LLMs & Transformers)",
+        "Interactive code mentorship & web dev projects"
       ],
-      systemLoad: 42,
+      systemLoad: 88,
       color: "cyan"
     },
     {
       id: "teaching_spooky",
-      codeName: "TEACHING_SPOOKY_PROTOCOL",
+      codeName: "SPOOKY_BLOGS_PROTOCOL",
       extension: "dll",
-      title: "Teaching & Spooky Content",
-      description: "Equip bold students with elite programming/AI knowledge while producing gothic cyberpunk analysis, spooky game lore, and dark tech speculation.",
+      title: "Spooky Blogs & Gothic Lore",
+      description: "Weekly Spooky Blogs analyzing slasher icon cinema (Texas Chainsaw Massacre, Tiffany, Michael Myers), gothic cyberpunk aesthetics, and analog horror lore.",
       details: [
-        "Interactive Computer Science & AI teaching curricula",
-        "Cyber-goth tech talks & spooky culture analysis",
-        "Stream-based code mentorship pipelines",
-        "Creating value-driven Christian tech frameworks"
+        "Spooky Blogs & Gothic Cyberpunk Essays",
+        "Slasher Cinema & Icon Breakdowns (Leatherface, Chucky, Myers)",
+        "Analog horror lore & creepy tech speculation",
+        "Darkwave audio podcasts & alternative tech talks"
       ],
-      systemLoad: 68,
+      systemLoad: 95,
       color: "magenta"
     },
     {
